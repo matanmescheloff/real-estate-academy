@@ -43,15 +43,15 @@ TOOLS = {
     "🏦 מחשבון יכולת רכישה": "calc_power",
     "🔧 מימון מתוחכם": "advanced_financing",
     "📊 ניתוח עסקה": "deal_analysis",
-    "⚖️ חוקים ומיסים": "coming",
+    "⚖️ חוקים ומיסים": "laws_taxes",
     "🎓 מערכת למידה": "learning",
     "🤖 צ'אט AI": "ai_chat",
-    "📄 ניתוח חוזים": "coming",
-    "🏛️ רשות המיסים": "coming",
-    "👥 מאגר אנשי מקצוע": "coming",
-    "🗄️ מאגר נדל\"ן": "coming",
-    "📁 מאגר חוזים": "coming",
-    "📋 ניהול עסקה": "coming",
+    "📄 ניתוח חוזים": "contract_analysis",
+    "🏛️ רשות המיסים": "tax_authority",
+    "👥 מאגר אנשי מקצוע": "professionals",
+    "🗄️ מאגר נדל\"ן": "property_db",
+    "📁 מאגר חוזים": "contract_library",
+    "📋 ניהול עסקה": "deal_mgmt",
 }
 
 with st.sidebar:
@@ -1748,6 +1748,1324 @@ def tool_learning():
         _learning_employee_view()
 
 
+# ─── TOOL: LAWS & TAXES REFERENCE ────────────────────────────────────────────
+
+LAW_CARDS = [
+    {
+        "title": "מס רכישה",
+        "category": "מיסוי",
+        "summary": "מס חד-פעמי שמשלם הקונה בעת רכישת נכס",
+        "content": """**מי משלם:** הקונה בלבד. **מתי:** תוך 60 יום מחתימת החוזה.
+
+**דירה ראשונה (2026):**
+- 0% עד ₪1,978,745
+- 3.5% על החלק שבין ₪1,978,745 ל-₪2,347,040
+- 5% על החלק שבין ₪2,347,040 ל-₪6,055,070
+- 8% על החלק שבין ₪6,055,070 ל-₪20,183,565
+- 10% על כל סכום מעל ₪20,183,565
+
+**דירה נוספת / משקיע:**
+- 8% על החלק עד ₪6,055,070 · 10% מעלה
+
+**פטורים מיוחדים:** עולים חדשים, נכים, גרוש/גרושה חד-הורי בתנאים מסוימים.""",
+    },
+    {
+        "title": "מס שבח",
+        "category": "מיסוי",
+        "summary": "מס על הרווח ממכירת נכס — 25% מהרווח הריאלי",
+        "content": """**מי משלם:** המוכר. **שיעור:** 25% על הרווח הריאלי.
+
+**חישוב בסיסי:**
+(מחיר מכירה − מחיר קנייה − הוצאות מוכרות) × 25%
+
+**הוצאות מוכרות:** שכ"ט עו"ד, תיווך, שיפוצים מוכרים, מס רכישה ששולם, פחת.
+
+**פטור לדירת מגורים יחידה:**
+- מי שמכר דירה יחידה ולא מכר ב-18 חודשים האחרונים — פטור מלא.
+
+**חישוב ליניארי (דירה שנרכשה לפני 2014):**
+- חלק הרווח מלפני 1.1.2014 — פטור. חלק מ-2014 ואילך — 25%.
+
+**ניכוי מדד:** עלות הרכישה מתואמת למדד המחירים לצרכן.""",
+    },
+    {
+        "title": "מס הכנסה על שכירות",
+        "category": "מיסוי",
+        "summary": "מיסוי הכנסות משכר דירה — 3 מסלולים",
+        "content": """**מסלול א׳ — שיעור מופחת 10%:**
+- 10% מהשכירות הגולמית. ללא ניכוי הוצאות. פשוט ומהיר.
+
+**מסלול ב׳ — פטור (עד תקרה 2026):**
+- שכ"ד חודשי עד ₪5,471 — פטור מלא ממס.
+- אם עולה על התקרה — מיסוי על העודף לפי מס שולי.
+
+**מסלול ג׳ — מס שולי רגיל:**
+- מצרף לכלל ההכנסות. מנכה הוצאות (פחת 2%, ריבית, ועד בית, תיקונים).
+- מתאים כשיש הוצאות גבוהות ומדרגת מס נמוכה.
+
+**המלצה:** השווה את 3 המסלולים לפי הכנסתך הכוללת — ראה מחשבון ברשות המיסים.""",
+    },
+    {
+        "title": "חוק המכר (דירות)",
+        "category": "חוקים",
+        "summary": "הגנות חוקיות לרוכש דירה מקבלן",
+        "content": """**ליקויי בנייה — אחריות הקבלן:**
+- 7 שנים: ליקויי שלד ויסוד
+- 3 שנים: ליקויי רטיבות, אינסטלציה, חשמל
+- שנה: ליקויי גמר (ריצוף, טיח, צבע)
+
+**ערבות בנקאית:** חובה עד מסירת הדירה — מגן על כספי הרוכש.
+
+**מועד מסירה:** כל איחור מעל 60 יום → פיצוי של 1.5 שכ"ד לחודש.
+
+**מפרט טכני:** חלק מחייב מהחוזה — הקבלן מחויב לו.
+
+**פגמים נסתרים:** זכות תביעה גם לאחר הרכישה בתקופת האחריות.""",
+    },
+    {
+        "title": "חוק השכירות",
+        "category": "חוקים",
+        "summary": "זכויות וחובות משכיר ושוכר",
+        "content": """**הסכם שכירות:** חייב להיות בכתב. מומלץ לרשום בטאבו.
+
+**בטחונות מקסימליים:** שיק ביטחון / ערבות בנקאית עד 3 חודשי שכ"ד.
+
+**תיקונים:**
+- תקלות שוטפות (נורות, ברז טפטוף קל) — השוכר
+- תיקוני מבנה ותשתיות — המשכיר
+
+**פינוי שוכר:** רק דרך בית משפט (תביעת פינוי). לא ניתן לנעול/לנתק שירותים.
+
+**חוק שכירות הוגנת (2017):**
+- הגבלת עמלת תיווך לחצי חודש שכ"ד
+- זכות להכניס שוכר חלופי בתנאים מסוימים
+- הגנה מפני פינוי לא מוצדק""",
+    },
+    {
+        "title": "תמ\"א 38",
+        "category": "תכנון",
+        "summary": "חיזוק מבנים ישנים ותוספת בנייה",
+        "content": """**מטרה:** חיזוק מבנים שנבנו לפני 1980 מפני רעידות אדמה.
+
+**תמ"א 38/1 — חיזוק + תוספת:**
+- הקבלן מחזק, הדיירים מקבלים: ממ"ד, מרפסת, מעלית, חניה.
+- הקבלן מרוויח: קומות נוספות למכירה.
+
+**תמ"א 38/2 — הריסה ובנייה:**
+- הריסת הבניין ובניית חדש + דירות גדולות יותר לדיירים.
+
+**הסכמה נדרשת:** 66% מדיירי הבניין (38/1), 80% (38/2).
+
+**חשוב:** תמ"א 38 בוטלה כתוכנית ארצית החל מ-2022 — כעת ברישוי מקומי בלבד.""",
+    },
+    {
+        "title": "פינוי-בינוי",
+        "category": "תכנון",
+        "summary": "הריסה ובנייה מחדש של מתחמים שלמים",
+        "content": """**מהו:** פרויקט עירוני של הריסת שכונות ישנות ובניית בניינים חדשים.
+
+**יתרון לדיירים:** דירה חדשה + גדולה יותר + ממ"ד + חניה + מחסן — ללא עלות.
+
+**הסכמה:** 80% מהדיירים במתחם (לאחר תיקון חוק 2006).
+
+**מסרב לא סביר:** ניתן לתבוע אותו בגין נזקי שאר הדיירים.
+
+**ליווי מומלץ:** ועד בית עם עו"ד מטעם הדיירים — עלויות הייעוץ על היזם.
+
+**מיסוי:** פטור ממס שבח ומס רכישה לדיירים הותיקים.""",
+    },
+    {
+        "title": "רישום בטאבו",
+        "category": "רישום",
+        "summary": "מרשם המקרקעין הרשמי — הגנה על הבעלות",
+        "content": """**חשיבות:** רישום בטאבו = בעלות חוקית מוגמרת. ללא רישום — הבעלות חשופה.
+
+**מסמכים לרישום:** שטר מכר, אישור מסים (שבח+רכישה), אישור עירייה (היטל השבחה).
+
+**תקופה:** 6–18 חודשים בממוצע מגמר העסקה.
+
+**נסח טאבו:** מסמך המאמת בעלות, שעבודים, הערות — הפק ב-gov.il (₪27 בדיגיטל).
+
+**הערת אזהרה:** נרשמת מיד עם חתימת חוזה — מגן על הקונה עד להשלמת הרישום.
+
+**שכירות לטאבו:** שכירות מעל 5 שנים ניתן לרשום בטאבו להגנה מלאה.""",
+    },
+    {
+        "title": "בדיקת נאותות (Due Diligence)",
+        "category": "רכישה",
+        "summary": "בדיקות חובה לפני כל רכישת נכס",
+        "content": """**בדיקות משפטיות:**
+- נסח טאבו — שעבודים, עיקולים, הערות אזהרה
+- תיק בניין בעירייה — חריגות בנייה, צווי הריסה
+- היתר בנייה — בדוק שהנכס תואם להיתר
+
+**בדיקות פיזיות:**
+- שמאי מקרקעין — שווי ומצב הנכס
+- מהנדס / בדק בית — ליקויים, חריגות, לחות
+
+**בדיקות כספיות:**
+- חובות לעירייה (ארנונה, היטל השבחה)
+- חובות לוועד בית
+- מצב המשכנתא הקיימת — שחרור שעבוד
+
+**עלות ממוצעת:** שמאי ₪1,500–3,000 · בדק בית ₪1,000–2,000""",
+    },
+    {
+        "title": "היטל השבחה",
+        "category": "מיסוי",
+        "summary": "תשלום לעירייה בגין עליית ערך מתכנון",
+        "content": """**מהו:** 50% מעליית ערך הנכס הנובעת מאישור תב"ע / שינוי ייעוד / הקלה.
+
+**מתי משלמים:** בעת מימוש הזכויות — בנייה, מכירה, פיצול דירה.
+
+**מי משלם:** בעל הנכס בעת המימוש (לא בעת אישור התוכנית).
+
+**שומה:** שמאי מטעם הוועדה המקומית קובע את עליית הערך.
+
+**ערעור:** ניתן לערער על השומה תוך 45 יום ע"י שמאי מטעמך.
+
+**פטורים:** מכירה לקרוב משפחה, מוסד ציבורי, ועוד — בתנאים מסוימים.""",
+    },
+]
+
+
+def tool_laws_taxes():
+    st.title("⚖️ חוקים ומיסים")
+    st.caption("מדריך מקיף לחוקי נדל\"ן ישראלי — מיסים, זכויות, תכנון ורישום")
+
+    tab_ref, tab_ai = st.tabs(["📖 מדריך חוקים ומיסים", "🤖 שאל את ה-AI המשפטי"])
+
+    with tab_ref:
+        col_search, col_cat = st.columns([2, 1])
+        with col_search:
+            search = st.text_input("🔍 חיפוש נושא", placeholder="לדוגמה: מס שבח, פינוי, שכירות...")
+        with col_cat:
+            cats = ["הכל"] + list(dict.fromkeys(c["category"] for c in LAW_CARDS))
+            cat_filter = st.selectbox("קטגוריה", cats)
+
+        filtered = LAW_CARDS
+        if cat_filter != "הכל":
+            filtered = [c for c in filtered if c["category"] == cat_filter]
+        if search.strip():
+            s = search.lower()
+            filtered = [c for c in filtered if s in c["title"].lower() or s in c["summary"].lower() or s in c["content"].lower()]
+
+        st.caption(f"{len(filtered)} נושאים")
+        for card in filtered:
+            with st.expander(f"**{card['title']}** — {card['summary']}"):
+                st.markdown(card["content"])
+
+    with tab_ai:
+        st.markdown("### 🤖 יועץ משפטי AI — שאל כל שאלה על נדל\"ן")
+        api_key = st.secrets.get("GEMINI_API_KEY", "")
+        if not api_key:
+            st.warning("נדרש Gemini API Key — הגדר ב-.streamlit/secrets.toml")
+            return
+
+        if "law_chat" not in st.session_state:
+            st.session_state.law_chat = []
+
+        for msg in st.session_state.law_chat:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+        if not st.session_state.law_chat:
+            with st.chat_message("assistant"):
+                st.markdown(
+                    "שלום! אני יועץ משפטי AI לנדל\"ן ישראלי 📜\n\n"
+                    "אני יכול לעזור עם:\n"
+                    "- פרשנות חוקים ותקנות\n"
+                    "- שאלות על מיסים ופטורים\n"
+                    "- בדיקת זכויות ברכישה/שכירות\n\n"
+                    "⚠️ *התשובות הן כלליות ואינן מחליפות ייעוץ משפטי פרטני.*"
+                )
+
+        if prompt := st.chat_input("שאל שאלה משפטית על נדל\"ן..."):
+            st.session_state.law_chat.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            genai.configure(api_key=api_key)
+            law_model = genai.GenerativeModel(
+                model_name="gemini-2.0-flash",
+                system_instruction="""אתה עו"ד מומחה לנדל"ן ישראלי.
+ענה בעברית, בצורה מקצועית וברורה, על שאלות הקשורות לנדל"ן: מיסים, חוזים, זכויות, תכנון ובנייה.
+תמיד ציין בסוף: "⚠️ תשובה זו כללית ואינה מחליפה ייעוץ משפטי פרטני."
+אם השאלה לא קשורה לנדל"ן — הסבר בנימוס.""",
+            )
+            with st.chat_message("assistant"):
+                with st.spinner("חושב..."):
+                    try:
+                        history = [
+                            {"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]}
+                            for m in st.session_state.law_chat[:-1]
+                        ]
+                        chat = law_model.start_chat(history=history)
+                        resp = chat.send_message(prompt)
+                        answer = resp.text
+                    except Exception as e:
+                        answer = f"❌ שגיאה: {e}"
+                st.markdown(answer)
+            st.session_state.law_chat.append({"role": "assistant", "content": answer})
+
+        if st.session_state.law_chat:
+            if st.button("🗑️ נקה שיחה", key="clear_law"):
+                st.session_state.law_chat = []
+                st.rerun()
+
+
+# ─── TOOL: TAX AUTHORITY ─────────────────────────────────────────────────────
+
+INCOME_BRACKETS_2026 = [
+    (84_120, 0.10),
+    (120_720, 0.14),
+    (193_800, 0.20),
+    (269_280, 0.31),
+    (560_280, 0.35),
+    (721_560, 0.47),
+    (float("inf"), 0.50),
+]
+
+
+def calc_income_tax(annual_income: float) -> float:
+    tax = 0.0
+    prev = 0.0
+    for ceiling, rate in INCOME_BRACKETS_2026:
+        if annual_income <= prev:
+            break
+        taxable = min(annual_income, ceiling) - prev
+        tax += taxable * rate
+        prev = ceiling
+    return tax
+
+
+def tool_tax_authority():
+    st.title("🏛️ רשות המיסים")
+    st.caption("מחשבוני מס מקצועיים — מס שבח, מס שכירות, פטורים ותכנון מס")
+
+    tab_shevach, tab_rent, tab_guide = st.tabs([
+        "📈 מס שבח",
+        "🏠 מס שכירות — השוואת מסלולים",
+        "📋 פטורים ומועדים",
+    ])
+
+    # ── TAB 1: MAS SHEVACH ────────────────────────────────────────────────────
+    with tab_shevach:
+        st.markdown('<div class="section-title">מחשבון מס שבח</div>', unsafe_allow_html=True)
+        st.caption("מס על רווח ממכירת נכס — 25% מהרווח הריאלי, בכפוף לפטורים")
+
+        c1, c2 = st.columns(2)
+        with c1:
+            sell_price = st.number_input("מחיר מכירה (₪)", min_value=0, step=50_000, value=2_500_000)
+            buy_price = st.number_input("מחיר רכישה מקורי (₪)", min_value=0, step=50_000, value=1_200_000)
+            buy_year = st.number_input("שנת רכישה", min_value=1980, max_value=2025, value=2010)
+        with c2:
+            lawyer_sell = st.number_input("שכ\"ט עו\"ד מכירה (₪)", min_value=0, step=1_000, value=15_000)
+            lawyer_buy = st.number_input("שכ\"ט עו\"ד + מס רכישה ששולם (₪)", min_value=0, step=5_000, value=60_000)
+            renovation_cost = st.number_input("השקעות מוכרות בנכס (₪)", min_value=0, step=10_000, value=0,
+                                               help="שיפוצים עם קבלות, תוספות בנייה בהיתר")
+            broker_sell = st.number_input("תיווך במכירה (₪)", min_value=0, step=5_000, value=0)
+
+        is_single = st.checkbox("זוהי דירתי היחידה (לבחינת פטור)", value=True)
+
+        # CPI adjustment (simplified: assume 2% avg annual)
+        years_held = max(1, 2026 - buy_year)
+        cpi_factor = (1.02) ** years_held
+        buy_price_indexed = buy_price * cpi_factor
+
+        total_deductions = lawyer_sell + lawyer_buy + renovation_cost + broker_sell
+        nominal_profit = sell_price - buy_price - total_deductions
+        real_profit = sell_price - buy_price_indexed - total_deductions
+
+        # Linear exemption: proportion before 2014 is exempt
+        LINEAR_CUTOFF = 2014
+        if buy_year < LINEAR_CUTOFF:
+            years_before_cutoff = LINEAR_CUTOFF - buy_year
+            exempt_fraction = years_before_cutoff / years_held
+        else:
+            exempt_fraction = 0.0
+
+        taxable_profit = max(0, real_profit * (1 - exempt_fraction))
+        full_exempt = is_single and years_held >= 0  # simplified — full single-apt check
+
+        tax_shevach = 0.0 if full_exempt else taxable_profit * 0.25
+        effective_rate = tax_shevach / max(1, sell_price) * 100
+
+        st.divider()
+        st.markdown("## 📊 תוצאות חישוב מס שבח")
+        c1, c2, c3, c4 = st.columns(4)
+        cards_s = [
+            ("רווח נומינלי", fmt(max(0, nominal_profit)), "לפני תיאום מדד"),
+            ("רווח ריאלי", fmt(max(0, real_profit)), f"לאחר מדד × {cpi_factor:.2f}"),
+            ("רווח חייב במס", fmt(taxable_profit), f"פטור ליניארי {exempt_fraction*100:.0f}%"),
+            ("מס שבח לתשלום", fmt(tax_shevach), f"שיעור אפקטיבי {effective_rate:.1f}%"),
+        ]
+        for col, (label, value, sub) in zip([c1, c2, c3, c4], cards_s):
+            with col:
+                st.markdown(f"""<div class="metric-card">
+                    <div class="label">{label}</div>
+                    <div class="value">{value}</div>
+                    <div class="sub">{sub}</div>
+                </div>""", unsafe_allow_html=True)
+
+        if full_exempt and is_single:
+            st.markdown("""<div class="alert-green">
+                ✅ <strong>פטור מלא לדירת מגורים יחידה</strong><br>
+                אם זוהי דירתך היחידה ולא מכרת דירה ב-18 חודשים האחרונים — אתה פטור ממס שבח.
+                מומלץ לוודא זכאות עם עו"ד מקרקעין.
+            </div>""", unsafe_allow_html=True)
+        elif exempt_fraction > 0:
+            st.markdown(f"""<div class="alert-yellow">
+                ⚡ <strong>פטור ליניארי חלקי — {exempt_fraction*100:.0f}% פטור</strong><br>
+                החלק מלפני 1.1.2014 פטור ממס. החלק מ-2014 ואילך חייב ב-25%.
+            </div>""", unsafe_allow_html=True)
+
+        st.divider()
+        st.markdown('<div class="section-title">פירוט החישוב</div>', unsafe_allow_html=True)
+        breakdown = {
+            "מחיר מכירה": fmt(sell_price),
+            f"מחיר רכישה מקורי": fmt(buy_price),
+            f"מחיר רכישה מתואם מדד ({buy_year}→2026)": fmt(buy_price_indexed),
+            "שכ\"ט עו\"ד ומס רכישה": fmt(lawyer_buy),
+            "שכ\"ט עו\"ד מכירה + תיווך": fmt(lawyer_sell + broker_sell),
+            "השקעות מוכרות": fmt(renovation_cost),
+            "**רווח ריאלי לפני פטור**": fmt(max(0, real_profit)),
+            f"**פטור ליניארי ({exempt_fraction*100:.0f}%)**": f"- {fmt(max(0, real_profit) * exempt_fraction)}",
+            "**רווח חייב במס**": fmt(taxable_profit),
+            "**מס שבח (25%)**": fmt(tax_shevach),
+        }
+        for k, v in breakdown.items():
+            ca, cb = st.columns([3, 1])
+            ca.markdown(k)
+            cb.markdown(f"**{v}**")
+        st.caption("⚠️ החישוב אינדיקטיבי. תיאום מדד מחושב בהנחת 2% בשנה. יש להתייעץ עם עו\"ד מקרקעין.")
+
+    # ── TAB 2: RENTAL INCOME TAX ──────────────────────────────────────────────
+    with tab_rent:
+        st.markdown('<div class="section-title">מחשבון מס הכנסה על שכירות — השוואת מסלולים</div>',
+                    unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2)
+        with c1:
+            monthly_rent = st.number_input("שכ\"ד חודשי (₪)", min_value=0, step=500, value=5_000)
+            other_annual_income = st.number_input("הכנסה שנתית אחרת (₪)", min_value=0, step=10_000, value=180_000,
+                                                   help="משכורת, עסק עצמאי וכו׳")
+        with c2:
+            annual_expenses = st.number_input("הוצאות שנתיות מוכרות (₪)", min_value=0, step=1_000, value=3_000,
+                                               help="ועד בית, ביטוח, תיקונים, פחת (2% מהנכס)")
+            property_value = st.number_input("שווי הנכס לחישוב פחת (₪)", min_value=0, step=100_000, value=1_500_000)
+
+        annual_rent = monthly_rent * 12
+        depreciation = property_value * 0.02  # 2% annual depreciation
+        total_expenses = annual_expenses + depreciation
+        rent_ceiling_2026 = 5_471 * 12  # annual
+
+        # Route A: 10% flat
+        tax_a = annual_rent * 0.10
+
+        # Route B: Exemption up to ceiling
+        if annual_rent <= rent_ceiling_2026:
+            tax_b = 0.0
+            b_note = f"פטור מלא — שכ\"ד שנתי ({fmt(annual_rent)}) מתחת לתקרה ({fmt(rent_ceiling_2026)})"
+        else:
+            excess = annual_rent - rent_ceiling_2026
+            combined_b = other_annual_income + excess
+            tax_on_combined = calc_income_tax(combined_b)
+            tax_on_other = calc_income_tax(other_annual_income)
+            tax_b = tax_on_combined - tax_on_other
+            b_note = f"מיסוי שולי על העודף ({fmt(excess)}) מעל התקרה"
+
+        # Route C: Regular marginal tax with deductions
+        net_rent_c = max(0, annual_rent - total_expenses)
+        combined_c = other_annual_income + net_rent_c
+        tax_on_combined_c = calc_income_tax(combined_c)
+        tax_on_other_c = calc_income_tax(other_annual_income)
+        tax_c = max(0, tax_on_combined_c - tax_on_other_c)
+
+        best = min(tax_a, tax_b, tax_c)
+
+        st.divider()
+        st.markdown("## 📊 השוואת מסלולים")
+        c1, c2, c3 = st.columns(3)
+        routes = [
+            ("מסלול א׳ — 10% קבוע", tax_a, f"ללא ניכוי הוצאות · פשוט"),
+            ("מסלול ב׳ — פטור/שולי", tax_b, b_note[:50]),
+            ("מסלול ג׳ — מס שולי + הוצאות", tax_c, f"הוצאות: {fmt(total_expenses)} (כולל פחת {fmt(depreciation)})"),
+        ]
+        for col, (label, tax_val, note) in zip([c1, c2, c3], routes):
+            is_best = abs(tax_val - best) < 1
+            border = "border: 2px solid #4fc3f7;" if is_best else ""
+            badge = " 🏆 מומלץ" if is_best else ""
+            with col:
+                st.markdown(f"""<div class="metric-card" style="{border}">
+                    <div class="label">{label}{badge}</div>
+                    <div class="value">{fmt(tax_val)}</div>
+                    <div class="sub">{note}</div>
+                </div>""", unsafe_allow_html=True)
+
+        saving = max(tax_a, tax_b, tax_c) - best
+        if saving > 100:
+            st.markdown(f"""<div class="alert-green" style="margin-top:15px">
+                💡 <strong>חיסכון בבחירת המסלול האופטימלי: {fmt(saving)} לשנה</strong>
+            </div>""", unsafe_allow_html=True)
+
+        st.divider()
+        rows_rent = {
+            "שכ\"ד שנתי": fmt(annual_rent),
+            "הכנסה שנתית אחרת": fmt(other_annual_income),
+            "הוצאות מוכרות (כולל פחת)": fmt(total_expenses),
+            "פחת (2% משווי הנכס)": fmt(depreciation),
+            "תקרת פטור שנתית (2026)": fmt(rent_ceiling_2026),
+        }
+        for k, v in rows_rent.items():
+            ca, cb = st.columns([3, 1])
+            ca.markdown(k)
+            cb.markdown(f"**{v}**")
+        st.caption("⚠️ החישוב אינדיקטיבי — אינו כולל ביטוח לאומי וביטוח בריאות. התייעץ עם רו\"ח.")
+
+    # ── TAB 3: EXEMPTIONS GUIDE ───────────────────────────────────────────────
+    with tab_guide:
+        st.markdown('<div class="section-title">פטורים עיקריים ומועדי הגשה</div>', unsafe_allow_html=True)
+        exemptions = [
+            ("פטור מס שבח — דירת מגורים יחידה",
+             "מי שלא מכר דירה ב-18 החודשים הקודמים ומכר דירה יחידה — פטור מלא. מגבלת שווי: ₪5,008,000 (2026).",
+             "⏱️ דיווח תוך 30 יום מהמכירה לרשות המיסים"),
+            ("פטור ליניארי (נכסים שנרכשו לפני 2014)",
+             "החלק היחסי של הרווח שנצבר לפני 1.1.2014 — פטור ממס שבח, גם בדירה שאינה יחידה.",
+             "⏱️ דיווח תוך 30 יום"),
+            ("פטור מס שכירות — עד תקרה",
+             "שכ\"ד חודשי עד ₪5,471 (2026) — פטור מלא ממס. מגיש דוח שנתי רק אם עבר את התקרה.",
+             "⏱️ דוח שנתי עד 30/4"),
+            ("פינוי-בינוי — פטור מס שבח ורכישה",
+             "דיירים שמסרו דירה בפרויקט פינוי-בינוי ומקבלים דירה חדשה — פטורים ממס שבח ומס רכישה.",
+             "✅ אוטומטי עם אישור הפרויקט"),
+            ("עולה חדש — הנחה במס רכישה",
+             "עולה חדש זכאי לשיעור מס רכישה מופחת של 0.5% על דירה ראשונה בישראל (עד תקרה).",
+             "⏱️ הגשת בקשה במועד הדיווח"),
+        ]
+        for title, desc, timing in exemptions:
+            with st.expander(f"**{title}**"):
+                st.markdown(desc)
+                st.caption(timing)
+
+        st.divider()
+        st.markdown('<div class="section-title">מועדי דיווח חשובים</div>', unsafe_allow_html=True)
+        deadlines = [
+            ("מס שבח — דיווח ותשלום", "תוך 30 יום ממועד המכירה"),
+            ("מס רכישה — תשלום", "תוך 60 יום מחתימת החוזה"),
+            ("מס שכירות — דוח שנתי", "עד 30 באפריל של השנה העוקבת"),
+            ("ביטול שומה / השגה", "תוך 30 יום מקבלת השומה"),
+        ]
+        for event, deadline in deadlines:
+            ca, cb = st.columns([2, 1])
+            ca.markdown(f"**{event}**")
+            cb.markdown(f"📅 {deadline}")
+
+
+# ─── TOOL: CONTRACT ANALYSIS ─────────────────────────────────────────────────
+
+CONTRACT_CHECKLIST = {
+    "חוזה רכישה": [
+        "פרטי הצדדים — שמות, ת.ז., כתובות",
+        "תיאור הנכס — גוש, חלקה, כתובת, גודל",
+        "מחיר ולוח תשלומים מפורט",
+        "מועד מסירת החזקה",
+        "מצב הנכס — פנוי / מושכר / עם מטלטלין",
+        "ערבות / בטחונות (קבלן — ערבות בנקאית חוק המכר)",
+        "תנאים מתלים (קבלת משכנתא, היתר, אישורים)",
+        "קנסות איחור (0.5%–1% לחודש)",
+        "הסדרת חריגות בנייה (אם יש)",
+        "רישום בטאבו — מועד ואחריות",
+        "הצהרות המוכר (אין שעבוד, עיקול, תביעה)",
+        "מס שבח — מי נושא ומתי",
+    ],
+    "חוזה שכירות": [
+        "פרטי הצדדים",
+        "תיאור הנכס ומצבו",
+        "תקופת השכירות + אופציה",
+        "סכום שכ\"ד + מועדי תשלום",
+        "הצמדה למדד / העלאה שנתית",
+        "בטחונות (שיקים, ערבות בנקאית, ערבים)",
+        "חלוקת אחריות לתיקונים",
+        "שינויים בנכס — אישור מראש",
+        "איסור על העברת שכירות לאחר",
+        "הסרת בטחונות בתום השכירות",
+        "תנאי פינוי מוקדם",
+        "ביטוח נכס — מי אחראי",
+    ],
+}
+
+
+def tool_contract_analysis():
+    st.title("📄 ניתוח חוזים")
+    st.caption("הדבק טקסט חוזה → AI מנתח, מזהה סיכונים ומפיק סיכום מקצועי + צ'קליסט")
+
+    tab_analyze, tab_checklist = st.tabs(["🔍 ניתוח AI לחוזה", "✅ צ'קליסט בדיקה"])
+
+    with tab_analyze:
+        api_key = st.secrets.get("GEMINI_API_KEY", "")
+
+        contract_type = st.selectbox("סוג חוזה", ["חוזה רכישה", "חוזה שכירות", "הסכם אחר"])
+        contract_text = st.text_area(
+            "הדבק כאן את טקסט החוזה",
+            height=280,
+            placeholder="הדבק את כל נוסח החוזה כאן — ניתן להדביק גם חלקי חוזה לבחינה..."
+        )
+
+        if st.button("🤖 נתח חוזה", type="primary", use_container_width=True):
+            if not contract_text.strip():
+                st.error("נא להדביק טקסט חוזה")
+            elif not api_key:
+                st.error("נדרש Gemini API Key")
+            else:
+                with st.spinner("מנתח חוזה עם AI..."):
+                    try:
+                        genai.configure(api_key=api_key)
+                        contract_model = genai.GenerativeModel(
+                            model_name="gemini-2.0-flash",
+                            system_instruction="""אתה עו"ד מומחה לחוזי נדל"ן ישראלי.
+נתח חוזים בעברית. תמיד ציין: "ניתוח זה אינו מחליף ייעוץ משפטי פרטני".""",
+                        )
+                        prompt = f"""נתח את חוזה ה{contract_type} הבא והחזר JSON בלבד (ללא markdown):
+{{
+  "summary": "תקציר קצר של העסקה (2-3 משפטים)",
+  "parties": "פרטי הצדדים כפי שמופיעים בחוזה",
+  "key_terms": ["תנאי מפתח 1", "תנאי מפתח 2", ...],
+  "red_flags": ["בעיה פוטנציאלית 1", "בעיה פוטנציאלית 2", ...],
+  "missing_clauses": ["סעיף חסר 1", "סעיף חסר 2", ...],
+  "recommendations": ["המלצה 1", "המלצה 2", ...],
+  "risk_level": "נמוך / בינוני / גבוה"
+}}
+
+חוזה לניתוח:
+{contract_text[:6000]}"""
+                        resp = contract_model.generate_content(prompt)
+                        raw = resp.text.strip()
+                        if "```" in raw:
+                            raw = raw.split("```")[1]
+                            if raw.startswith("json"):
+                                raw = raw[4:]
+                        analysis = json.loads(raw)
+                        st.session_state["contract_analysis"] = analysis
+                    except Exception as e:
+                        st.error(f"שגיאה בניתוח: {e}")
+
+        if "contract_analysis" in st.session_state:
+            a = st.session_state["contract_analysis"]
+            risk = a.get("risk_level", "בינוני")
+            risk_cls = "alert-green" if risk == "נמוך" else "alert-yellow" if risk == "בינוני" else "alert-red"
+            risk_icon = "🟢" if risk == "נמוך" else "🟡" if risk == "בינוני" else "🔴"
+
+            st.divider()
+            st.markdown(f"""<div class="{risk_cls}">
+                {risk_icon} <strong>רמת סיכון: {risk}</strong>
+            </div>""", unsafe_allow_html=True)
+
+            st.markdown(f"**📋 תקציר:** {a.get('summary', '—')}")
+            st.markdown(f"**👥 צדדים:** {a.get('parties', '—')}")
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**✅ תנאי מפתח**")
+                for item in a.get("key_terms", []):
+                    st.markdown(f"- {item}")
+
+                st.markdown("**💡 המלצות**")
+                for item in a.get("recommendations", []):
+                    st.markdown(f"- {item}")
+
+            with col2:
+                if a.get("red_flags"):
+                    st.markdown("**🚩 דגלים אדומים**")
+                    for item in a["red_flags"]:
+                        st.markdown(f"- ⚠️ {item}")
+
+                if a.get("missing_clauses"):
+                    st.markdown("**❓ סעיפים חסרים**")
+                    for item in a["missing_clauses"]:
+                        st.markdown(f"- {item}")
+
+            st.caption("⚠️ ניתוח זה הוא כלי עזר בלבד ואינו מחליף ייעוץ משפטי.")
+            if st.button("🗑️ נקה ניתוח"):
+                del st.session_state["contract_analysis"]
+                st.rerun()
+
+    with tab_checklist:
+        st.markdown('<div class="section-title">צ\'קליסט בדיקת חוזה</div>', unsafe_allow_html=True)
+        checklist_type = st.selectbox("סוג חוזה לבדיקה", list(CONTRACT_CHECKLIST.keys()))
+        items = CONTRACT_CHECKLIST[checklist_type]
+
+        if f"checklist_{checklist_type}" not in st.session_state:
+            st.session_state[f"checklist_{checklist_type}"] = {item: False for item in items}
+
+        checked_count = 0
+        for item in items:
+            key = f"chk_{checklist_type}_{item}"
+            val = st.checkbox(item, value=st.session_state[f"checklist_{checklist_type}"].get(item, False), key=key)
+            st.session_state[f"checklist_{checklist_type}"][item] = val
+            if val:
+                checked_count += 1
+
+        progress = checked_count / len(items) if items else 0
+        st.divider()
+        st.progress(progress)
+        st.caption(f"הושלם: {checked_count}/{len(items)} סעיפים ({progress*100:.0f}%)")
+        if progress == 1.0:
+            st.markdown('<div class="alert-green">✅ כל הסעיפים נבדקו!</div>', unsafe_allow_html=True)
+        if st.button("אפס צ'קליסט"):
+            st.session_state[f"checklist_{checklist_type}"] = {item: False for item in items}
+            st.rerun()
+
+
+# ─── TOOL: PROFESSIONALS DATABASE ────────────────────────────────────────────
+
+PROFESSIONAL_CATEGORIES = ["עו\"ד מקרקעין", "יועץ משכנתאות", "שמאי מקרקעין", "מתווך", "קבלן שיפוצים", "רואה חשבון", "מהנדס / אדריכל", "אחר"]
+
+SAMPLE_PROFESSIONALS = [
+    {"id": "p1", "name": "דוד לוי", "category": "עו\"ד מקרקעין", "phone": "052-1234567",
+     "city": "תל אביב", "rating": 5, "notes": "מומחה עסקאות יוקרה ותמ\"א 38", "email": "david@law.co.il"},
+    {"id": "p2", "name": "רחל כהן", "category": "יועץ משכנתאות", "phone": "054-7654321",
+     "city": "רמת גן", "rating": 5, "notes": "עובדת עם כל הבנקים, מתמחה בתמהילים מורכבים", "email": "rachel@mortgage.co.il"},
+    {"id": "p3", "name": "מיכאל גרינברג", "category": "שמאי מקרקעין", "phone": "050-9876543",
+     "city": "ירושלים", "rating": 4, "notes": "שמאות לנכסים מסחריים ומגורים", "email": "michael@shamai.co.il"},
+    {"id": "p4", "name": "יוסי אברמוביץ", "category": "מתווך", "phone": "053-1122334",
+     "city": "חיפה", "rating": 4, "notes": "התמחות קריית ים, קריית אתא", "email": ""},
+]
+
+
+def tool_professionals():
+    st.title("👥 מאגר אנשי מקצוע")
+    st.caption("ניהול רשימת אנשי מקצוע — עו\"ד, יועצי משכנתאות, שמאים, קבלנים ועוד")
+
+    if "professionals" not in st.session_state:
+        st.session_state.professionals = [p.copy() for p in SAMPLE_PROFESSIONALS]
+
+    tab_list, tab_add = st.tabs(["📋 המאגר", "➕ הוסף איש מקצוע"])
+
+    with tab_list:
+        profs = st.session_state.professionals
+        col_search, col_cat, col_city = st.columns(3)
+        with col_search:
+            search_p = st.text_input("🔍 חיפוש שם", placeholder="חפש לפי שם...")
+        with col_cat:
+            cat_p = st.selectbox("קטגוריה", ["הכל"] + PROFESSIONAL_CATEGORIES, key="prof_cat")
+        with col_city:
+            cities = ["הכל"] + sorted(set(p["city"] for p in profs if p["city"]))
+            city_p = st.selectbox("עיר", cities)
+
+        filtered_p = profs
+        if cat_p != "הכל":
+            filtered_p = [p for p in filtered_p if p["category"] == cat_p]
+        if city_p != "הכל":
+            filtered_p = [p for p in filtered_p if p["city"] == city_p]
+        if search_p.strip():
+            s = search_p.lower()
+            filtered_p = [p for p in filtered_p if s in p["name"].lower()]
+
+        st.caption(f"{len(filtered_p)} אנשי מקצוע")
+
+        for prof in filtered_p:
+            stars = "⭐" * prof.get("rating", 0)
+            with st.expander(f"**{prof['name']}** — {prof['category']} · {prof['city']} {stars}"):
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.markdown(f"📞 **{prof['phone']}**")
+                    if prof.get("email"):
+                        st.markdown(f"✉️ {prof['email']}")
+                with c2:
+                    st.markdown(f"🏙️ {prof['city']}")
+                    st.markdown(f"⭐ דירוג: {prof.get('rating', 0)}/5")
+                if prof.get("notes"):
+                    st.markdown(f"📝 {prof['notes']}")
+                if st.button("🗑️ מחק", key=f"del_prof_{prof['id']}"):
+                    st.session_state.professionals = [p for p in profs if p["id"] != prof["id"]]
+                    st.rerun()
+
+        if filtered_p:
+            csv_p = pd.DataFrame([{
+                "שם": p["name"], "קטגוריה": p["category"], "טלפון": p["phone"],
+                "עיר": p["city"], "דירוג": p["rating"], "הערות": p.get("notes", ""),
+            } for p in filtered_p]).to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
+            st.download_button("📥 ייצא CSV", data=csv_p, file_name="אנשי_מקצוע.csv", mime="text/csv")
+
+    with tab_add:
+        st.markdown('<div class="section-title">הוספת איש מקצוע חדש</div>', unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        with c1:
+            new_name = st.text_input("שם מלא *")
+            new_cat = st.selectbox("קטגוריה *", PROFESSIONAL_CATEGORIES, key="new_prof_cat")
+            new_phone = st.text_input("טלפון *")
+        with c2:
+            new_city = st.text_input("עיר")
+            new_email = st.text_input("אימייל")
+            new_rating = st.slider("דירוג (1-5)", 1, 5, 4)
+        new_notes = st.text_area("הערות / התמחות", height=80)
+
+        if st.button("➕ הוסף לרשימה", type="primary", use_container_width=True):
+            if not new_name.strip() or not new_phone.strip():
+                st.error("שם וטלפון הם שדות חובה")
+            else:
+                new_prof = {
+                    "id": str(uuid.uuid4())[:8],
+                    "name": new_name.strip(),
+                    "category": new_cat,
+                    "phone": new_phone.strip(),
+                    "city": new_city.strip(),
+                    "email": new_email.strip(),
+                    "rating": new_rating,
+                    "notes": new_notes.strip(),
+                }
+                st.session_state.professionals.append(new_prof)
+                st.success(f"✅ {new_name} נוסף למאגר!")
+                st.rerun()
+
+
+# ─── TOOL: PROPERTY DATABASE ──────────────────────────────────────────────────
+
+PROPERTY_STATUSES = ["בחינה", "מועמד", "בהליך", "נרכש", "נדחה"]
+PROPERTY_TYPES = ["דירה", "דירת גן", "בית פרטי", "דופלקס", "פנטהאוס", "נכס מסחרי", "קרקע", "אחר"]
+
+
+def tool_property_db():
+    st.title("🗄️ מאגר נדל\"ן")
+    st.caption("מעקב ואנליזה של נכסים — השוואה, תשואה, ציון, סטטוס")
+
+    if "property_db" not in st.session_state:
+        st.session_state.property_db = []
+
+    tab_list, tab_add, tab_compare = st.tabs(["📋 רשימת נכסים", "➕ הוסף נכס", "⚖️ השוואה"])
+
+    with tab_list:
+        props = st.session_state.property_db
+        if not props:
+            st.info("אין נכסים. הוסף נכסים בלשונית 'הוסף נכס'.")
+        else:
+            col_status, col_type = st.columns(2)
+            with col_status:
+                status_f = st.selectbox("סטטוס", ["הכל"] + PROPERTY_STATUSES, key="prop_status_f")
+            with col_type:
+                type_f = st.selectbox("סוג", ["הכל"] + PROPERTY_TYPES, key="prop_type_f")
+
+            filtered_pr = props
+            if status_f != "הכל":
+                filtered_pr = [p for p in filtered_pr if p["status"] == status_f]
+            if type_f != "הכל":
+                filtered_pr = [p for p in filtered_pr if p["prop_type"] == type_f]
+
+            st.caption(f"{len(filtered_pr)} נכסים")
+            for prop in filtered_pr:
+                price_sqm = prop["price"] / prop["size"] if prop["size"] > 0 else 0
+                gross_yield = (prop["monthly_rent"] * 12 / prop["price"] * 100) if prop["price"] > 0 and prop["monthly_rent"] > 0 else 0
+                status_icon = {"בחינה": "🔵", "מועמד": "🟡", "בהליך": "🟠", "נרכש": "🟢", "נדחה": "🔴"}.get(prop["status"], "⚪")
+                with st.expander(f"{status_icon} **{prop['address']}** — {prop['prop_type']} · {fmt(prop['price'])}"):
+                    c1, c2, c3 = st.columns(3)
+                    c1.metric("מחיר", fmt(prop["price"]))
+                    c2.metric("₪ למ\"ר", f"₪{price_sqm:,.0f}")
+                    c3.metric("תשואה ברוטו", f"{gross_yield:.1f}%" if gross_yield > 0 else "—")
+
+                    if prop.get("notes"):
+                        st.markdown(f"📝 {prop['notes']}")
+                    st.caption(f"נוסף: {prop.get('date_added', '')}")
+
+                    c_edit, c_del = st.columns(2)
+                    with c_edit:
+                        new_status = st.selectbox("עדכן סטטוס", PROPERTY_STATUSES,
+                                                   index=PROPERTY_STATUSES.index(prop["status"]),
+                                                   key=f"status_{prop['id']}")
+                        if new_status != prop["status"]:
+                            prop["status"] = new_status
+                            st.rerun()
+                    with c_del:
+                        st.write("")
+                        if st.button("🗑️ מחק", key=f"del_prop_{prop['id']}"):
+                            st.session_state.property_db = [p for p in props if p["id"] != prop["id"]]
+                            st.rerun()
+
+            csv_props = pd.DataFrame([{
+                "כתובת": p["address"], "סוג": p["prop_type"], "מחיר": p["price"],
+                "גודל (מ\"ר)": p["size"], "שכ\"ד חודשי": p["monthly_rent"],
+                "סטטוס": p["status"], "הערות": p.get("notes", ""),
+            } for p in filtered_pr]).to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
+            st.download_button("📥 ייצא CSV", data=csv_props, file_name="נכסים.csv", mime="text/csv")
+
+    with tab_add:
+        st.markdown('<div class="section-title">הוספת נכס למעקב</div>', unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        with c1:
+            new_address = st.text_input("כתובת / תיאור הנכס *")
+            new_price = st.number_input("מחיר מבוקש (₪)", min_value=0, step=50_000, value=2_000_000)
+            new_size = st.number_input("גודל (מ\"ר)", min_value=0, step=5, value=80)
+        with c2:
+            new_prop_type = st.selectbox("סוג נכס", PROPERTY_TYPES)
+            new_rent = st.number_input("שכ\"ד חודשי אפשרי (₪)", min_value=0, step=500, value=0,
+                                        help="להערכת תשואה — אפשר להשאיר 0")
+            new_status_add = st.selectbox("סטטוס", PROPERTY_STATUSES)
+        new_notes_prop = st.text_area("הערות", height=80)
+
+        if st.button("➕ הוסף נכס", type="primary", use_container_width=True):
+            if not new_address.strip():
+                st.error("נא הכנס כתובת")
+            else:
+                new_prop = {
+                    "id": str(uuid.uuid4())[:8],
+                    "address": new_address.strip(),
+                    "prop_type": new_prop_type,
+                    "price": new_price,
+                    "size": new_size,
+                    "monthly_rent": new_rent,
+                    "status": new_status_add,
+                    "notes": new_notes_prop.strip(),
+                    "date_added": str(date.today()),
+                }
+                st.session_state.property_db.append(new_prop)
+                st.success(f"✅ '{new_address}' נוסף למאגר!")
+                st.rerun()
+
+    with tab_compare:
+        props = st.session_state.property_db
+        if len(props) < 2:
+            st.info("הוסף לפחות 2 נכסים כדי להשוות.")
+        else:
+            prop_labels = [f"{p['address']} ({fmt(p['price'])})" for p in props]
+            selected_labels = st.multiselect("בחר עד 3 נכסים להשוואה", prop_labels, max_selections=3)
+            selected_props = [props[prop_labels.index(l)] for l in selected_labels if l in prop_labels]
+
+            if selected_props:
+                compare_data = []
+                for p in selected_props:
+                    price_sqm = p["price"] / p["size"] if p["size"] > 0 else 0
+                    gross_yield = p["monthly_rent"] * 12 / p["price"] * 100 if p["price"] > 0 and p["monthly_rent"] > 0 else 0
+                    compare_data.append({
+                        "כתובת": p["address"],
+                        "סוג": p["prop_type"],
+                        "מחיר": fmt(p["price"]),
+                        "גודל": f"{p['size']} מ\"ר",
+                        "מחיר למ\"ר": fmt(price_sqm),
+                        "שכ\"ד": fmt(p["monthly_rent"]) if p["monthly_rent"] > 0 else "—",
+                        "תשואה ברוטו": f"{gross_yield:.1f}%" if gross_yield > 0 else "—",
+                        "סטטוס": p["status"],
+                    })
+                st.dataframe(pd.DataFrame(compare_data).T, use_container_width=True)
+
+
+# ─── TOOL: CONTRACT LIBRARY ───────────────────────────────────────────────────
+
+CONTRACT_TEMPLATES = [
+    {
+        "id": "tmpl_1",
+        "title": "זכרון דברים — רכישת דירה",
+        "category": "רכישה",
+        "description": "מסמך ראשוני שנחתם לפני חוזה המכר המלא. מחייב את הצדדים לעסקה.",
+        "content": """זכרון דברים
+
+נערך ונחתם ביום ___ לחודש ___ שנת ___
+
+בין: ___________________ (ת.ז. ___________) — המוכר
+לבין: ___________________ (ת.ז. ___________) — הקונה
+
+הצדדים מסכימים בזאת:
+
+1. **הנכס:** דירה ברח׳ ___________________, עיר ___________, גוש ___, חלקה ___, תת-חלקה ___.
+2. **מחיר:** סך של ₪___________ (במילים: ___________).
+3. **לוח תשלומים:**
+   - ₪___________ — עם חתימת זיכרון הדברים (פיקדון)
+   - ₪___________ — עם חתימת חוזה מלא
+   - יתרת ₪___________ — עם מסירת החזקה
+4. **מועד מסירה:** ___________________.
+5. **תנאי מתלה:** העסקה כפופה לקבלת משכנתא בסך ₪___________ תוך ___ ימים.
+6. הצדדים מתחייבים לחתום על חוזה מכר מלא תוך ___ ימים.
+
+חתימת המוכר: _______________    חתימת הקונה: _______________""",
+    },
+    {
+        "id": "tmpl_2",
+        "title": "חוזה שכירות — דירת מגורים",
+        "category": "שכירות",
+        "description": "חוזה שכירות סטנדרטי לדירת מגורים הכולל את כל הסעיפים המקובלים.",
+        "content": """הסכם שכירות — דירת מגורים
+
+נערך ביום ___ לחודש ___ שנת ___
+
+המשכיר: ___________________ (ת.ז. ___________), מרח׳ ___________________
+השוכר: ___________________ (ת.ז. ___________), מרח׳ ___________________
+
+1. **הנכס:** דירה בת ___ חדרים ברח׳ ___________________, קומה ___, עיר ___________.
+2. **תקופת השכירות:** מיום ___ ועד ___ (אופציה: ___ חודשים נוספים בהודעה של 60 יום).
+3. **שכר דירה:** ₪___________ לחודש, צמוד למדד המחירים לצרכן לבסיס ___________.
+   תשלום: עד ה-___ לכל חודש, בהעברה בנקאית / שיקים.
+4. **בטחונות:**
+   - שיקים דחויים / ערבות בנקאית בסך ___ חודשי שכ"ד.
+   - ערב: ___________________ (ת.ז. ___________).
+5. **חלוקת תיקונים:**
+   - המשכיר: תשתיות, צנרת, חשמל, גג, קירות נושאים.
+   - השוכר: קלקולים שוטפים מתחת ₪300 לתקלה.
+6. **שינויים בנכס:** אסור ללא אישור כתוב מהמשכיר.
+7. **איסור העברה:** אין להסב / להשכיר משנה ללא אישור.
+8. **מצב הנכס:** מסור במצב ___________________, עם הפריטים: ___________________.
+
+חתימת המשכיר: _______________    חתימת השוכר: _______________""",
+    },
+    {
+        "id": "tmpl_3",
+        "title": "יפוי כוח לעסקת מקרקעין",
+        "category": "יפוי כוח",
+        "description": "יפוי כוח לעו\"ד או קרוב משפחה לביצוע עסקאות מקרקעין.",
+        "content": """יפוי כוח בלתי חוזר
+
+אני החתום מטה, ___________________ (ת.ז. ___________), מרח׳ ___________________,
+מסמיך ומייפה בזאת את כוחו של:
+___________________ (ת.ז. / רישיון עו"ד ___________), מרח׳ ___________________
+
+לפעול בשמי ובמקומי לצורך:
+
+1. רכישה / מכירה של הנכס הידוע כ: ___________________, גוש ___, חלקה ___, תת-חלקה ___.
+2. חתימה על כל חוזה, מסמך, הצהרה הנוגעת לעסקה.
+3. ייצוגי מול כל רשות — טאבו, מס שבח, עירייה, בנק.
+4. קבלה ומסירה של כספים הנובעים מהעסקה.
+5. רישום הנכס בלשכת רישום המקרקעין.
+
+יפוי כוח זה הינו בלתי חוזר ויעמוד בתוקף עד להשלמת העסקה.
+
+תאריך: _______________
+חתימת מייפה הכוח: _______________
+אימות נוטריון / עו"ד: _______________""",
+    },
+    {
+        "id": "tmpl_4",
+        "title": "הסכם שיתוף בנכס",
+        "category": "שותפות",
+        "description": "הסכם בין שותפים ברכישת נכס — חלוקת זכויות, הוצאות, ועקרונות מכירה עתידית.",
+        "content": """הסכם שיתוף במקרקעין
+
+נערך ביום ___ לחודש ___ שנת ___
+
+הצדדים:
+- שותף א׳: ___________________ (ת.ז. ___________) — חלק: ___%
+- שותף ב׳: ___________________ (ת.ז. ___________) — חלק: ___%
+
+לגבי הנכס: ___________________, גוש ___, חלקה ___.
+
+1. **חלוקת בעלות:** שותף א׳ — __% · שותף ב׳ — __%.
+2. **מימון:** כל שותף ממן ___% מהון עצמי ומנשא ___% מהמשכנתא.
+3. **הוצאות שוטפות:** כל שותף נושא בחלקו היחסי בהוצאות (ועד בית, ביטוח, ארנונה).
+4. **השכרה:** ההחלטה על השכרה והשוכר תהיה בהסכמת שני הצדדים.
+5. **מכירה:** לא תהיה מכירה ללא הסכמת שני הצדדים. זכות סירוב ראשונה לשותף.
+6. **פירוק שיתוף:** במקרה של חילוקי דעות — פירוק דרך בית משפט או הסכמה הדדית.
+
+חתימת שותף א׳: _______________    חתימת שותף ב׳: _______________""",
+    },
+    {
+        "id": "tmpl_5",
+        "title": "הסכם שכ\"ט — יועץ נדל\"ן",
+        "category": "שכר טרחה",
+        "description": "הסכם עם יועץ השקעות נדל\"ן המגדיר את תנאי הליווי ושכר הטרחה.",
+        "content": """הסכם שכר טרחה — ליווי השקעות נדל"ן
+
+נערך ביום ___ לחודש ___ שנת ___
+
+בין: מתן משלוף, יועץ נדל"ן, מרח׳ ___________________
+לבין: ___________________ (ת.ז. ___________) — הלקוח
+
+1. **שירותי הייעוץ כוללים:**
+   - ניתוח שוק ואיתור נכסים מתאימים
+   - ניתוח כלכלי ובדיקת כדאיות השקעה
+   - ליווי במשא ומתן
+   - תיאום עם אנשי מקצוע (עו"ד, שמאי, יועץ משכנתאות)
+
+2. **שכר טרחה:** ₪___________ + מע"מ, לתשלום:
+   - 50% עם חתימת הסכם זה
+   - 50% עם חתימת חוזה רכישה
+
+3. **תקופת ההסכם:** ___ חודשים מיום החתימה.
+
+4. **סודיות:** הייעוץ הינו אישי וחסוי.
+
+חתימת היועץ: _______________    חתימת הלקוח: _______________""",
+    },
+]
+
+
+def tool_contract_library():
+    st.title("📁 מאגר חוזים")
+    st.caption("ספריית תבניות חוזים מוכנות לשימוש — רכישה, שכירות, יפוי כוח, שותפות")
+
+    if "custom_templates" not in st.session_state:
+        st.session_state.custom_templates = []
+
+    all_templates = CONTRACT_TEMPLATES + st.session_state.custom_templates
+
+    tab_lib, tab_add = st.tabs(["📚 ספריית תבניות", "➕ הוסף תבנית"])
+
+    with tab_lib:
+        cats_t = ["הכל"] + list(dict.fromkeys(t["category"] for t in all_templates))
+        cat_t = st.selectbox("קטגוריה", cats_t)
+        filtered_t = all_templates if cat_t == "הכל" else [t for t in all_templates if t["category"] == cat_t]
+
+        st.caption(f"{len(filtered_t)} תבניות")
+        for tmpl in filtered_t:
+            with st.expander(f"**{tmpl['title']}** — {tmpl['description']}"):
+                st.markdown(f"*קטגוריה: {tmpl['category']}*")
+                st.text_area("תוכן התבנית", value=tmpl["content"], height=350, key=f"view_{tmpl['id']}")
+
+                col_copy, col_dl = st.columns(2)
+                with col_dl:
+                    st.download_button(
+                        "📥 הורד כ-TXT",
+                        data=tmpl["content"].encode("utf-8"),
+                        file_name=f"{tmpl['title']}.txt",
+                        mime="text/plain",
+                        key=f"dl_{tmpl['id']}",
+                        use_container_width=True,
+                    )
+                if tmpl["id"].startswith("custom_") and st.button("🗑️ מחק", key=f"del_tmpl_{tmpl['id']}"):
+                    st.session_state.custom_templates = [t for t in st.session_state.custom_templates if t["id"] != tmpl["id"]]
+                    st.rerun()
+
+    with tab_add:
+        st.markdown('<div class="section-title">הוספת תבנית חדשה</div>', unsafe_allow_html=True)
+        new_t_title = st.text_input("כותרת התבנית *")
+        new_t_cat = st.text_input("קטגוריה", placeholder="לדוגמה: שכירות, רכישה, אחר")
+        new_t_desc = st.text_input("תיאור קצר")
+        new_t_content = st.text_area("תוכן התבנית *", height=300, placeholder="הכנס את נוסח החוזה כאן...")
+
+        if st.button("💾 שמור תבנית", type="primary", use_container_width=True):
+            if not new_t_title.strip() or not new_t_content.strip():
+                st.error("כותרת ותוכן הם שדות חובה")
+            else:
+                st.session_state.custom_templates.append({
+                    "id": f"custom_{uuid.uuid4().__str__()[:8]}",
+                    "title": new_t_title.strip(),
+                    "category": new_t_cat.strip() or "אחר",
+                    "description": new_t_desc.strip(),
+                    "content": new_t_content.strip(),
+                })
+                st.success("✅ תבנית נוספה!")
+                st.rerun()
+
+
+# ─── TOOL: DEAL MANAGEMENT ────────────────────────────────────────────────────
+
+DEAL_STAGES = ["🔍 איתור", "📋 בדיקות", "🤝 מו\"מ", "📝 חוזה", "🏁 סגירה"]
+DEAL_STAGE_CHECKLIST = {
+    "🔍 איתור": [
+        "איתור נכס מתאים",
+        "בדיקת מחיר ראשונית vs. שוק",
+        "ביקור פיזי בנכס",
+        "חישוב תשואה גסה",
+        "תקשורת ראשונית עם המוכר/מתווך",
+    ],
+    "📋 בדיקות": [
+        "הפקת נסח טאבו",
+        "בדיקת תיק בניין בעירייה",
+        "שמאות (אם נדרש)",
+        "בדק בית / מהנדס",
+        "בדיקת חובות עירייה",
+        "בדיקת חובות ועד בית",
+        "בדיקת שעבודים ומשכנתאות",
+        "בחינת היתר בנייה",
+    ],
+    "🤝 מו\"מ": [
+        "הגשת הצעת מחיר",
+        "משא ומתן על מחיר",
+        "סיכום תנאים (לוח תשלומים, מועד מסירה)",
+        "זכרון דברים (אופציונלי)",
+        "סיכום פרטי עסקה בכתב",
+    ],
+    "📝 חוזה": [
+        "שכירת עו\"ד מקרקעין",
+        "קבלת טיוטת חוזה",
+        "בדיקת חוזה עם עו\"ד",
+        "הסדרת משכנתא / מימון",
+        "חתימה על חוזה",
+        "תשלום מס רכישה (תוך 60 יום)",
+        "רישום הערת אזהרה",
+    ],
+    "🏁 סגירה": [
+        "תשלום יתרת התמורה",
+        "קבלת מפתחות",
+        "פרוטוקול מסירה",
+        "העברת שירותים (חשמל, מים, גז, ועד)",
+        "תשלום שכ\"ט עו\"ד",
+        "רישום בטאבו (תוך 30 יום)",
+        "ביטוח נכס",
+    ],
+}
+
+
+def tool_deal_mgmt():
+    st.title("📋 ניהול עסקה")
+    st.caption("CRM לניהול עסקאות נדל\"ן — שלבים, צ'קליסט, מועדים והערות")
+
+    if "deals" not in st.session_state:
+        st.session_state.deals = []
+    if "active_deal" not in st.session_state:
+        st.session_state.active_deal = None
+
+    deals = st.session_state.deals
+
+    col_sidebar, col_main = st.columns([1, 3])
+
+    with col_sidebar:
+        st.markdown("### עסקאות")
+        if st.button("➕ עסקה חדשה", use_container_width=True, type="primary"):
+            st.session_state.active_deal = "__new__"
+            st.rerun()
+
+        for deal in deals:
+            stage_idx = next((i for i, s in enumerate(DEAL_STAGES) if s == deal["stage"]), 0)
+            progress_pct = int((stage_idx + 1) / len(DEAL_STAGES) * 100)
+            is_active = st.session_state.active_deal == deal["id"]
+            btn_style = "primary" if is_active else "secondary"
+            if st.button(
+                f"{deal['stage']} {deal['name'][:20]}\n{fmt(deal['price'])}",
+                key=f"deal_btn_{deal['id']}",
+                use_container_width=True,
+                type=btn_style,
+            ):
+                st.session_state.active_deal = deal["id"]
+                st.rerun()
+
+    with col_main:
+        active_id = st.session_state.active_deal
+
+        if active_id is None:
+            if not deals:
+                st.markdown("""<div class="coming-soon">
+                    <div style="font-size:50px">📋</div>
+                    <div style="font-size:20px;color:#4fc3f7;margin:10px 0">התחל לנהל עסקאות</div>
+                    <div>לחץ "עסקה חדשה" כדי להוסיף את הנכס הראשון שלך</div>
+                </div>""", unsafe_allow_html=True)
+            else:
+                # Dashboard
+                st.markdown('<div class="section-title">סיכום עסקאות</div>', unsafe_allow_html=True)
+                stage_counts = {s: sum(1 for d in deals if d["stage"] == s) for s in DEAL_STAGES}
+                cols_d = st.columns(len(DEAL_STAGES))
+                for col, stage in zip(cols_d, DEAL_STAGES):
+                    with col:
+                        st.markdown(f"""<div class="metric-card">
+                            <div class="label">{stage}</div>
+                            <div class="value">{stage_counts[stage]}</div>
+                        </div>""", unsafe_allow_html=True)
+
+        elif active_id == "__new__":
+            st.markdown('<div class="section-title">עסקה חדשה</div>', unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            with c1:
+                nd_name = st.text_input("שם העסקה *", placeholder="לדוגמה: דירה בתל אביב")
+                nd_address = st.text_input("כתובת הנכס")
+                nd_price = st.number_input("מחיר עסקה (₪)", min_value=0, step=50_000, value=2_000_000)
+            with c2:
+                nd_stage = st.selectbox("שלב נוכחי", DEAL_STAGES)
+                nd_contact = st.text_input("איש קשר (מוכר/מתווך)")
+                nd_target_date = st.date_input("תאריך יעד לסגירה", value=date.today())
+            nd_notes = st.text_area("הערות", height=80)
+
+            if st.button("💾 צור עסקה", type="primary", use_container_width=True):
+                if not nd_name.strip():
+                    st.error("נא הכנס שם עסקה")
+                else:
+                    new_deal = {
+                        "id": str(uuid.uuid4())[:8],
+                        "name": nd_name.strip(),
+                        "address": nd_address.strip(),
+                        "price": nd_price,
+                        "stage": nd_stage,
+                        "contact": nd_contact.strip(),
+                        "target_date": str(nd_target_date),
+                        "notes": nd_notes.strip(),
+                        "checklist": {s: {item: False for item in items} for s, items in DEAL_STAGE_CHECKLIST.items()},
+                        "date_created": str(date.today()),
+                    }
+                    st.session_state.deals.append(new_deal)
+                    st.session_state.active_deal = new_deal["id"]
+                    st.rerun()
+
+        else:
+            deal = next((d for d in deals if d["id"] == active_id), None)
+            if not deal:
+                st.session_state.active_deal = None
+                st.rerun()
+                return
+
+            # Deal header
+            col_h1, col_h2, col_h3 = st.columns([2, 1, 1])
+            with col_h1:
+                st.markdown(f"## {deal['name']}")
+                st.caption(f"📍 {deal['address']} · {fmt(deal['price'])}")
+            with col_h2:
+                new_stage = st.selectbox("שלב", DEAL_STAGES,
+                                          index=DEAL_STAGES.index(deal["stage"]),
+                                          key=f"stage_sel_{deal['id']}")
+                if new_stage != deal["stage"]:
+                    deal["stage"] = new_stage
+                    st.rerun()
+            with col_h3:
+                st.caption(f"יעד: {deal.get('target_date', '—')}")
+                if st.button("🗑️ מחק עסקה", key=f"del_deal_{deal['id']}"):
+                    st.session_state.deals = [d for d in deals if d["id"] != deal["id"]]
+                    st.session_state.active_deal = None
+                    st.rerun()
+
+            # Stage progress bar
+            stage_idx = DEAL_STAGES.index(deal["stage"])
+            progress_val = (stage_idx + 1) / len(DEAL_STAGES)
+            st.progress(progress_val)
+            st.caption(f"התקדמות: שלב {stage_idx + 1}/{len(DEAL_STAGES)}")
+            st.divider()
+
+            tab_check, tab_notes, tab_info = st.tabs(["✅ צ'קליסט", "📝 הערות", "ℹ️ פרטי עסקה"])
+
+            with tab_check:
+                # Show checklist for all stages, highlight current
+                for stage in DEAL_STAGES:
+                    is_current = stage == deal["stage"]
+                    is_past = DEAL_STAGES.index(stage) < stage_idx
+                    header_color = "#4fc3f7" if is_current else "#4caf50" if is_past else "#556677"
+                    st.markdown(f"<div style='color:{header_color};font-weight:700;margin:15px 0 5px 0'>{stage}</div>",
+                                unsafe_allow_html=True)
+                    items_stage = DEAL_STAGE_CHECKLIST[stage]
+                    for item in items_stage:
+                        key_c = f"chk_{deal['id']}_{stage}_{item}"
+                        current_val = deal["checklist"].get(stage, {}).get(item, False)
+                        new_val = st.checkbox(item, value=current_val, key=key_c,
+                                               disabled=(not is_current and not is_past))
+                        deal["checklist"].setdefault(stage, {})[item] = new_val
+
+                # Overall progress
+                total_items = sum(len(v) for v in DEAL_STAGE_CHECKLIST.values())
+                checked_items = sum(
+                    1 for s, items in DEAL_STAGE_CHECKLIST.items()
+                    for item in items
+                    if deal["checklist"].get(s, {}).get(item, False)
+                )
+                st.divider()
+                st.progress(checked_items / total_items if total_items else 0)
+                st.caption(f"סה\"כ: {checked_items}/{total_items} משימות הושלמו")
+
+            with tab_notes:
+                new_notes_deal = st.text_area("הערות ותיעוד", value=deal.get("notes", ""),
+                                               height=300, key=f"notes_{deal['id']}")
+                if st.button("💾 שמור הערות", key=f"save_notes_{deal['id']}"):
+                    deal["notes"] = new_notes_deal
+                    st.success("✅ הערות נשמרו")
+
+            with tab_info:
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.markdown(f"**שם עסקה:** {deal['name']}")
+                    st.markdown(f"**כתובת:** {deal.get('address', '—')}")
+                    st.markdown(f"**מחיר:** {fmt(deal['price'])}")
+                with c2:
+                    st.markdown(f"**איש קשר:** {deal.get('contact', '—')}")
+                    st.markdown(f"**תאריך יצירה:** {deal.get('date_created', '—')}")
+                    st.markdown(f"**תאריך יעד:** {deal.get('target_date', '—')}")
+
+                deal_json = json.dumps({k: v for k, v in deal.items() if k != "checklist"},
+                                        ensure_ascii=False, indent=2)
+                st.download_button("📤 ייצא עסקה (JSON)", data=deal_json.encode("utf-8"),
+                                   file_name=f"עסקה_{deal['name']}.json", mime="application/json")
+
+
 # ─── COMING SOON ─────────────────────────────────────────────────────────────
 
 def tool_coming_soon(name: str):
@@ -1766,6 +3084,20 @@ elif selected_tool == "advanced_financing":
     tool_advanced_financing()
 elif selected_tool == "deal_analysis":
     tool_deal_analysis()
+elif selected_tool == "laws_taxes":
+    tool_laws_taxes()
+elif selected_tool == "tax_authority":
+    tool_tax_authority()
+elif selected_tool == "contract_analysis":
+    tool_contract_analysis()
+elif selected_tool == "professionals":
+    tool_professionals()
+elif selected_tool == "property_db":
+    tool_property_db()
+elif selected_tool == "contract_library":
+    tool_contract_library()
+elif selected_tool == "deal_mgmt":
+    tool_deal_mgmt()
 elif selected_tool == "learning":
     tool_learning()
 elif selected_tool == "ai_chat":
