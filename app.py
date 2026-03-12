@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import math
 import json
+import uuid
 from datetime import date
 import google.generativeai as genai
 
@@ -43,7 +44,7 @@ TOOLS = {
     "🔧 מימון מתוחכם": "advanced_financing",
     "📊 ניתוח עסקה": "deal_analysis",
     "⚖️ חוקים ומיסים": "coming",
-    "🎓 מערכת למידה": "coming",
+    "🎓 מערכת למידה": "learning",
     "🤖 צ'אט AI": "ai_chat",
     "📄 ניתוח חוזים": "coming",
     "🏛️ רשות המיסים": "coming",
@@ -1278,6 +1279,475 @@ def tool_ai_chat():
             st.rerun()
 
 
+# ─── TOOL: LEARNING LIBRARY ───────────────────────────────────────────────────
+
+LEARNING_TOPICS = [
+    "מיסוי נדל\"ן",
+    "משכנתאות ומימון",
+    "השקעות נדל\"ן",
+    "שוק הנדל\"ן",
+    "חוקים ורגולציה",
+    "ייזום ופיתוח",
+    "כלכלה ומאקרו",
+    "כללי",
+]
+
+LEARNING_ADMIN_PASSWORD = "matan2024"
+
+SAMPLE_CONTENT = [
+    {
+        "id": "sample_1",
+        "title": "מס רכישה — מדריך מלא 2026",
+        "topic": "מיסוי נדל\"ן",
+        "type": "article",
+        "url": "",
+        "description": "הסבר מפורט על מדרגות מס הרכישה בישראל לשנת 2026 — דירה ראשונה מול דירה נוספת.",
+        "summary": "מס הרכישה הוא מס חד-פעמי שמשלם הקונה. לדירה ראשונה: 0% עד 1.97M₪, 3.5% עד 2.34M₪, 5% עד 6.05M₪. לדירה נוספת: 8% עד 6.05M₪, 10% מעלה. חשוב להכיר את המדרגות לתכנון פיננסי נכון.",
+        "questions": [
+            {"q": "מה שיעור מס הרכישה לדירה ראשונה עד 1,978,745 ₪?", "options": ["0%", "3.5%", "5%", "8%"], "answer": 0},
+            {"q": "מי משלם מס רכישה?", "options": ["המוכר", "הקונה", "שניהם", "אף אחד"], "answer": 1},
+            {"q": "מה שיעור מס הרכישה לדירה נוספת עד 6 מיליון ₪?", "options": ["3.5%", "5%", "8%", "10%"], "answer": 2},
+            {"q": "מס הרכישה הוא מס:", "options": ["שנתי", "חד-פעמי", "חודשי", "עם מכירה"], "answer": 1},
+            {"q": "לדירה ראשונה ב-2.5 מיליון ₪, על איזה חלק משלמים 5%?", "options": ["כל הסכום", "החלק מ-2.34M עד 2.5M", "החלק מ-1.97M עד 2.34M", "לא משלמים כלל"], "answer": 1},
+        ],
+        "added_by": "admin",
+        "date_added": "2026-03-01",
+    },
+    {
+        "id": "sample_2",
+        "title": "יסודות המשכנתא — ריבית, מסלולים ולוח שפיצר",
+        "topic": "משכנתאות ומימון",
+        "type": "article",
+        "url": "",
+        "description": "הסבר על לוח שפיצר, מסלולי ריבית (קל\"צ, פריים, צמוד מדד), ואיך לבחור תמהיל נכון.",
+        "summary": "לוח שפיצר הוא שיטת החזר קבוע בה כל תשלום כולל קרן וריבית. מסלולי ריבית עיקריים: קל\"צ (קבועה לא צמודה), פריים (ריבית בנק ישראל + 1.5%), צמוד מדד. המלצת בנק ישראל: לפחות שליש ריבית קבועה.",
+        "questions": [
+            {"q": "מה הוא לוח שפיצר?", "options": ["תשלום גדל עם הזמן", "תשלום קבוע לאורך כל התקופה", "תשלום קרן בלבד", "תשלום ריבית בלבד"], "answer": 1},
+            {"q": "ריבית פריים מורכבת מ:", "options": ["ריבית בנק ישראל בלבד", "ריבית בנק ישראל + 1.5%", "ריבית LIBOR", "ריבית קבועה של הבנק"], "answer": 1},
+            {"q": "מהו ה-LTV המקסימלי לדירה ראשונה לפי בנק ישראל?", "options": ["50%", "60%", "75%", "90%"], "answer": 2},
+            {"q": "מה פירוש קל\"צ?", "options": ["קצרה לא זמינה", "קבועה לא צמודה", "קלה לצמצום", "קרן לא צמודה"], "answer": 1},
+            {"q": "מהו אחוז ההחזר המקסימלי המומלץ מההכנסה?", "options": ["20%", "30%", "40%", "50%"], "answer": 2},
+        ],
+        "added_by": "admin",
+        "date_added": "2026-03-01",
+    },
+    {
+        "id": "sample_3",
+        "title": "תשואה על נדל\"ן — ברוטו, נטו ותשואה על ההון",
+        "topic": "השקעות נדל\"ן",
+        "type": "article",
+        "url": "",
+        "description": "הבדל בין תשואה ברוטו לנטו, חישוב תשואה על ההון (Cash on Cash), ומה נחשב לתשואה טובה בישראל.",
+        "summary": "תשואה ברוטו = שכ\"ד שנתי / מחיר נכס. תשואה נטו = שכ\"ד שנתי פחות הוצאות / מחיר. תשואה על ההון (CoC) = תזרים שנתי / הון עצמי שהושקע. בישראל תשואה נטו של 3-4% נחשבת סבירה.",
+        "questions": [
+            {"q": "כיצד מחשבים תשואה ברוטו?", "options": ["שכ\"ד שנתי / הון עצמי", "שכ\"ד שנתי / מחיר הנכס", "שכ\"ד חודשי × 12 / משכנתא", "רווח ממכירה / מחיר"], "answer": 1},
+            {"q": "מה ההבדל בין תשואה ברוטו לנטו?", "options": ["אין הבדל", "נטו מחסירה הוצאות תפעול", "ברוטו מחסיר מיסים", "נטו כוללת עליית ערך"], "answer": 1},
+            {"q": "תשואה על ההון (Cash on Cash) מחושבת לפי:", "options": ["תזרים / מחיר נכס", "תזרים / הון עצמי", "שכ\"ד / הון עצמי", "רווח / מחיר"], "answer": 1},
+            {"q": "תשואה נטו של 4% בישראל נחשבת:", "options": ["גרועה מאוד", "סבירה", "מצוינת", "בלתי אפשרית"], "answer": 1},
+            {"q": "אילו הוצאות מחסירים לחישוב תשואה נטו?", "options": ["רק מיסים", "ועד בית, ביטוח, תיקונים, מיסים", "רק ועד בית", "אין להחסיר"], "answer": 1},
+        ],
+        "added_by": "admin",
+        "date_added": "2026-03-01",
+    },
+]
+
+
+def _learning_init():
+    if "learning_role" not in st.session_state:
+        st.session_state.learning_role = None
+        st.session_state.learning_user_name = ""
+    if "learning_content" not in st.session_state:
+        st.session_state.learning_content = [item.copy() for item in SAMPLE_CONTENT]
+    if "learning_scores" not in st.session_state:
+        st.session_state.learning_scores = {}
+    if "learning_quiz_active" not in st.session_state:
+        st.session_state.learning_quiz_active = None
+        st.session_state.learning_quiz_answers = {}
+        st.session_state.learning_quiz_submitted = False
+
+
+def _learning_login():
+    st.title("🎓 מערכת למידה")
+    st.markdown("ספריית ידע מקצועית לצוות — נדל\"ן, מיסוי, מימון ועסקאות")
+    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("### 👤 כניסת עובד")
+        emp_name = st.text_input("שם מלא", key="login_emp_name", placeholder="הכנס שמך")
+        if st.button("כניסה לספרייה", type="primary", use_container_width=True):
+            if emp_name.strip():
+                st.session_state.learning_role = "employee"
+                st.session_state.learning_user_name = emp_name.strip()
+                st.rerun()
+            else:
+                st.error("נא הכנס שם")
+    with col2:
+        st.markdown("### 🔑 כניסת מנהל")
+        admin_pass = st.text_input("סיסמת מנהל", type="password", key="login_admin_pass")
+        if st.button("כניסה כמנהל", use_container_width=True):
+            if admin_pass == LEARNING_ADMIN_PASSWORD:
+                st.session_state.learning_role = "admin"
+                st.session_state.learning_user_name = "מתן"
+                st.rerun()
+            else:
+                st.error("סיסמה שגויה")
+
+
+def _ai_generate_quiz(title, description, url_hint=""):
+    api_key = st.secrets.get("GEMINI_API_KEY", "")
+    if not api_key:
+        return None, None
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(model_name="gemini-2.0-flash")
+    context = f"כותרת: {title}\nתיאור: {description}"
+    if url_hint:
+        context += f"\nקישור: {url_hint}"
+    prompt = f"""בהתבסס על תוכן הלימוד הבא, צור:
+1. סיכום קצר (3-4 משפטים) בעברית
+2. 5 שאלות אמריקאיות (multiple choice) בעברית, כל שאלה עם 4 תשובות, תשובה נכונה אחת
+
+{context}
+
+החזר JSON בלבד, ללא markdown, בפורמט:
+{{
+  "summary": "סיכום...",
+  "questions": [
+    {{"q": "שאלה?", "options": ["א", "ב", "ג", "ד"], "answer": 0}}
+  ]
+}}
+answer הוא אינדקס 0-3 של התשובה הנכונה."""
+    try:
+        response = model.generate_content(prompt)
+        text = response.text.strip()
+        if "```" in text:
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        data = json.loads(text)
+        return data.get("summary", ""), data.get("questions", [])
+    except Exception:
+        return None, None
+
+
+def _learning_admin_view():
+    st.title("🎓 מערכת למידה — ניהול")
+    st.caption(f"מחובר כמנהל: {st.session_state.learning_user_name}")
+    if st.button("🚪 יציאה"):
+        st.session_state.learning_role = None
+        st.rerun()
+
+    tab_add, tab_lib, tab_scores = st.tabs(["➕ הוסף תוכן", "📚 ניהול ספרייה", "📊 ציונים"])
+
+    # ── TAB: ADD CONTENT ──────────────────────────────────────────────────────
+    with tab_add:
+        st.markdown('<div class="section-title">הוספת תוכן חדש לספרייה</div>', unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        with c1:
+            new_title = st.text_input("כותרת *", placeholder="שם השיעור / הנושא")
+            new_topic = st.selectbox("נושא *", LEARNING_TOPICS)
+        with c2:
+            new_type = st.selectbox(
+                "סוג תוכן",
+                ["article", "youtube", "podcast"],
+                format_func=lambda x: {"article": "📄 מאמר", "youtube": "▶️ יוטיוב", "podcast": "🎙️ פודקאסט"}[x],
+            )
+            new_url = st.text_input("קישור (URL)", placeholder="https://...")
+        new_desc = st.text_area("תיאור / תקציר ידני", placeholder="תאר את תוכן השיעור...", height=100)
+
+        st.divider()
+        col_gen, col_save = st.columns(2)
+        with col_gen:
+            if st.button("🤖 צור סיכום ושאלות (AI)", use_container_width=True, type="primary"):
+                if new_title:
+                    with st.spinner("מייצר שאלות עם AI..."):
+                        summary, questions = _ai_generate_quiz(new_title, new_desc, new_url)
+                    if summary and questions:
+                        st.session_state["_new_summary"] = summary
+                        st.session_state["_new_questions"] = questions
+                        st.success(f"✅ נוצרו {len(questions)} שאלות!")
+                    else:
+                        st.error("לא ניתן ליצור שאלות — בדוק את ה-API Key")
+                else:
+                    st.warning("הזן כותרת קודם")
+
+        if "_new_summary" in st.session_state:
+            with st.expander("👁️ תצוגה מקדימה", expanded=True):
+                st.markdown(f"**סיכום:** {st.session_state['_new_summary']}")
+                st.markdown("**שאלות:**")
+                for i, q in enumerate(st.session_state.get("_new_questions", []), 1):
+                    correct = q.get("options", [""])[q.get("answer", 0)]
+                    st.markdown(f"{i}. {q['q']} ✅ `{correct}`")
+
+        with col_save:
+            if st.button("💾 שמור לספרייה", use_container_width=True):
+                if not new_title.strip():
+                    st.error("נא הכנס כותרת")
+                else:
+                    summary = st.session_state.pop("_new_summary", new_desc[:200])
+                    questions = st.session_state.pop("_new_questions", [])
+                    new_item = {
+                        "id": str(uuid.uuid4())[:8],
+                        "title": new_title.strip(),
+                        "topic": new_topic,
+                        "type": new_type,
+                        "url": new_url.strip(),
+                        "description": new_desc.strip(),
+                        "summary": summary,
+                        "questions": questions,
+                        "added_by": "admin",
+                        "date_added": str(date.today()),
+                    }
+                    st.session_state.learning_content.append(new_item)
+                    st.success(f"✅ '{new_title}' נוסף לספרייה!")
+                    st.rerun()
+
+    # ── TAB: MANAGE LIBRARY ───────────────────────────────────────────────────
+    with tab_lib:
+        content = st.session_state.learning_content
+        st.markdown(f'<div class="section-title">ספרייה ({len(content)} פריטים)</div>', unsafe_allow_html=True)
+        if not content:
+            st.info("הספרייה ריקה. הוסף תוכן בלשונית 'הוסף תוכן'.")
+        else:
+            topic_filter = st.selectbox("סנן לפי נושא", ["הכל"] + LEARNING_TOPICS, key="admin_topic_filter")
+            filtered = content if topic_filter == "הכל" else [c for c in content if c["topic"] == topic_filter]
+            for item in filtered:
+                type_icon = {"article": "📄", "youtube": "▶️", "podcast": "🎙️"}.get(item["type"], "📄")
+                with st.expander(f"{type_icon} {item['title']} — {item['topic']}"):
+                    st.markdown(f"**תיאור:** {item.get('description', '—')}")
+                    st.markdown(f"**סיכום:** {item.get('summary', '—')}")
+                    st.markdown(f"**שאלות:** {len(item.get('questions', []))}")
+                    if item.get("url"):
+                        st.markdown(f"**קישור:** {item['url']}")
+                    st.caption(f"נוסף: {item.get('date_added', '')}")
+                    if st.button("🗑️ מחק", key=f"del_{item['id']}"):
+                        st.session_state.learning_content = [c for c in content if c["id"] != item["id"]]
+                        st.rerun()
+
+    # ── TAB: SCORES ───────────────────────────────────────────────────────────
+    with tab_scores:
+        scores = st.session_state.learning_scores
+        st.markdown('<div class="section-title">ציוני כל העובדים</div>', unsafe_allow_html=True)
+        if not scores:
+            st.info("אין עדיין ציונים. ציונים יופיעו כאשר עובדים יגישו מבחנים.")
+        else:
+            all_rows = []
+            for emp_name, emp_scores in scores.items():
+                for s in emp_scores:
+                    pct = s["score"] / s["total"] * 100 if s["total"] > 0 else 0
+                    all_rows.append({
+                        "עובד": emp_name,
+                        "נושא": s.get("title", "—"),
+                        "ציון": f"{s['score']}/{s['total']}",
+                        "אחוז": f"{pct:.0f}%",
+                        "תאריך": s.get("date", ""),
+                    })
+            st.dataframe(pd.DataFrame(all_rows), use_container_width=True, hide_index=True)
+
+            st.divider()
+            st.markdown('<div class="section-title">סיכום לפי עובד</div>', unsafe_allow_html=True)
+            for emp_name, emp_scores in scores.items():
+                if emp_scores:
+                    avg = sum(s["score"] / s["total"] for s in emp_scores if s["total"] > 0) / len(emp_scores) * 100
+                    with st.expander(f"👤 {emp_name} — ממוצע {avg:.0f}% ({len(emp_scores)} מבחנים)"):
+                        for s in emp_scores:
+                            pct = s["score"] / s["total"] * 100 if s["total"] > 0 else 0
+                            icon = "🟢" if pct >= 80 else "🟡" if pct >= 60 else "🔴"
+                            ca, cb = st.columns([3, 1])
+                            ca.markdown(s.get("title", "—"))
+                            cb.markdown(f"{icon} {s['score']}/{s['total']}")
+
+
+def _show_quiz(emp_name):
+    content_id = st.session_state.learning_quiz_active
+    item = next((c for c in st.session_state.learning_content if c["id"] == content_id), None)
+    if not item:
+        st.session_state.learning_quiz_active = None
+        st.rerun()
+        return
+
+    questions = item.get("questions", [])
+
+    if st.button("← חזור לספרייה"):
+        st.session_state.learning_quiz_active = None
+        st.session_state.learning_quiz_submitted = False
+        st.rerun()
+
+    st.markdown(f"## 🧪 מבחן: {item['title']}")
+    st.markdown(f"*{item['topic']}* · {len(questions)} שאלות")
+    st.divider()
+
+    if st.session_state.learning_quiz_submitted:
+        answers = st.session_state.learning_quiz_answers
+        score = sum(1 for i, q in enumerate(questions) if answers.get(i) == q["answer"])
+        pct = score / len(questions) * 100 if questions else 0
+        icon = "🏆" if pct >= 80 else "👍" if pct >= 60 else "📚"
+        st.markdown(f"## {icon} תוצאה: {score}/{len(questions)} ({pct:.0f}%)")
+        if pct >= 80:
+            st.markdown('<div class="alert-green">מצוין! שלטת בחומר היטב.</div>', unsafe_allow_html=True)
+        elif pct >= 60:
+            st.markdown('<div class="alert-yellow">תוצאה טובה — כדאי לחזור על הנושאים שפספסת.</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="alert-red">כדאי לחזור על החומר ולנסות שוב.</div>', unsafe_allow_html=True)
+
+        st.divider()
+        st.markdown("### פירוט תשובות")
+        for i, q in enumerate(questions):
+            user_ans = answers.get(i)
+            correct = q["answer"]
+            is_correct = user_ans == correct
+            mark = "✅" if is_correct else "❌"
+            st.markdown(f"**{i+1}. {q['q']}** {mark}")
+            for j, opt in enumerate(q["options"]):
+                if j == correct:
+                    prefix = "✅ "
+                elif j == user_ans and not is_correct:
+                    prefix = "❌ "
+                else:
+                    prefix = "○ "
+                st.markdown(f"&nbsp;&nbsp;&nbsp;{prefix}{opt}")
+
+        col_retry, col_back = st.columns(2)
+        with col_retry:
+            if st.button("🔄 נסה שוב", use_container_width=True):
+                st.session_state.learning_quiz_answers = {}
+                st.session_state.learning_quiz_submitted = False
+                st.rerun()
+        with col_back:
+            if st.button("← חזור לספרייה", key="back2", use_container_width=True):
+                st.session_state.learning_quiz_active = None
+                st.session_state.learning_quiz_submitted = False
+                st.rerun()
+    else:
+        answers = st.session_state.learning_quiz_answers
+        with st.form("quiz_form"):
+            for i, q in enumerate(questions):
+                st.markdown(f"**{i+1}. {q['q']}**")
+                choice = st.radio(
+                    f"שאלה {i+1}",
+                    options=list(range(len(q["options"]))),
+                    format_func=lambda x, opts=q["options"]: opts[x],
+                    key=f"q_{i}",
+                    label_visibility="collapsed",
+                )
+                answers[i] = choice
+                st.markdown("---")
+            submitted = st.form_submit_button("✅ הגש מבחן", use_container_width=True, type="primary")
+
+        if submitted:
+            st.session_state.learning_quiz_answers = answers
+            st.session_state.learning_quiz_submitted = True
+            score = sum(1 for i, q in enumerate(questions) if answers.get(i) == q["answer"])
+            if emp_name not in st.session_state.learning_scores:
+                st.session_state.learning_scores[emp_name] = []
+            st.session_state.learning_scores[emp_name].append({
+                "content_id": content_id,
+                "title": item["title"],
+                "score": score,
+                "total": len(questions),
+                "date": str(date.today()),
+            })
+            st.rerun()
+
+
+def _learning_employee_view():
+    name = st.session_state.learning_user_name
+    st.title("🎓 מערכת למידה")
+    st.caption(f"שלום {name}!")
+    if st.button("🚪 יציאה"):
+        st.session_state.learning_role = None
+        st.session_state.learning_quiz_active = None
+        st.session_state.learning_quiz_submitted = False
+        st.rerun()
+
+    if st.session_state.learning_quiz_active:
+        _show_quiz(name)
+        return
+
+    tab_lib, tab_scores = st.tabs(["📚 ספריית תכנים", "🏆 הציונים שלי"])
+
+    # ── TAB: CONTENT LIBRARY ──────────────────────────────────────────────────
+    with tab_lib:
+        content = st.session_state.learning_content
+        if not content:
+            st.info("הספרייה ריקה כרגע. המנהל יוסיף תכנים בקרוב.")
+        else:
+            topic_filter = st.selectbox("נושא", ["הכל"] + LEARNING_TOPICS, key="emp_topic_filter")
+            filtered = content if topic_filter == "הכל" else [c for c in content if c["topic"] == topic_filter]
+            emp_scores = st.session_state.learning_scores.get(name, [])
+            for item in filtered:
+                type_icon = {"article": "📄", "youtube": "▶️", "podcast": "🎙️"}.get(item["type"], "📄")
+                completed = any(s["content_id"] == item["id"] for s in emp_scores)
+                badge = " ✅" if completed else ""
+                with st.expander(f"{type_icon} {item['title']}{badge} — {item['topic']}"):
+                    if item.get("url"):
+                        if item["type"] == "youtube":
+                            url = item["url"]
+                            vid_id = ""
+                            if "v=" in url:
+                                vid_id = url.split("v=")[1].split("&")[0]
+                            elif "youtu.be/" in url:
+                                vid_id = url.split("youtu.be/")[1].split("?")[0]
+                            if vid_id:
+                                st.markdown(
+                                    f'<iframe width="100%" height="315" src="https://www.youtube.com/embed/{vid_id}" '
+                                    f'frameborder="0" allowfullscreen></iframe>',
+                                    unsafe_allow_html=True,
+                                )
+                            else:
+                                st.markdown(f"[🔗 פתח קישור]({url})")
+                        else:
+                            st.markdown(f"[🔗 {item['url']}]({item['url']})")
+                    if item.get("summary"):
+                        st.markdown(f"**📝 סיכום:** {item['summary']}")
+                    if item.get("questions"):
+                        n_q = len(item["questions"])
+                        label = f"🔄 בצע שוב מבחן ({n_q} שאלות)" if completed else f"🧪 התחל מבחן ({n_q} שאלות)"
+                        if st.button(label, key=f"quiz_start_{item['id']}", type="primary"):
+                            st.session_state.learning_quiz_active = item["id"]
+                            st.session_state.learning_quiz_answers = {}
+                            st.session_state.learning_quiz_submitted = False
+                            st.rerun()
+                    else:
+                        st.caption("אין שאלות לתוכן זה")
+
+    # ── TAB: MY SCORES ────────────────────────────────────────────────────────
+    with tab_scores:
+        emp_scores = st.session_state.learning_scores.get(name, [])
+        if not emp_scores:
+            st.info("עדיין לא השלמת מבחנים. גש לספרייה והתחל!")
+        else:
+            total_taken = len(emp_scores)
+            avg_pct = sum(s["score"] / s["total"] for s in emp_scores if s["total"] > 0) / total_taken * 100
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown(f"""<div class="metric-card">
+                    <div class="label">מבחנים שהושלמו</div>
+                    <div class="value">{total_taken}</div>
+                </div>""", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"""<div class="metric-card">
+                    <div class="label">ממוצע ציונים</div>
+                    <div class="value">{avg_pct:.0f}%</div>
+                </div>""", unsafe_allow_html=True)
+            st.divider()
+            for s in reversed(emp_scores):
+                pct = s["score"] / s["total"] * 100 if s["total"] > 0 else 0
+                icon = "🟢" if pct >= 80 else "🟡" if pct >= 60 else "🔴"
+                ca, cb = st.columns([3, 1])
+                ca.markdown(f"{icon} **{s.get('title', '—')}** ({s.get('date', '')})")
+                cb.markdown(f"**{s['score']}/{s['total']}** ({pct:.0f}%)")
+
+
+def tool_learning():
+    _learning_init()
+    if st.session_state.learning_role is None:
+        _learning_login()
+    elif st.session_state.learning_role == "admin":
+        _learning_admin_view()
+    else:
+        _learning_employee_view()
+
+
 # ─── COMING SOON ─────────────────────────────────────────────────────────────
 
 def tool_coming_soon(name: str):
@@ -1296,6 +1766,8 @@ elif selected_tool == "advanced_financing":
     tool_advanced_financing()
 elif selected_tool == "deal_analysis":
     tool_deal_analysis()
+elif selected_tool == "learning":
+    tool_learning()
 elif selected_tool == "ai_chat":
     tool_ai_chat()
 else:
