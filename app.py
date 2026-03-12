@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 import math
 import json
 from datetime import date
+import google.generativeai as genai
 
 st.set_page_config(page_title="Real Estate Pro | מתן משלוף", layout="wide", page_icon="🏠")
 
@@ -43,7 +44,7 @@ TOOLS = {
     "📊 ניתוח עסקה": "deal_analysis",
     "⚖️ חוקים ומיסים": "coming",
     "🎓 מערכת למידה": "coming",
-    "🤖 צ'אט AI": "coming",
+    "🤖 צ'אט AI": "ai_chat",
     "📄 ניתוח חוזים": "coming",
     "🏛️ רשות המיסים": "coming",
     "👥 מאגר אנשי מקצוע": "coming",
@@ -1185,6 +1186,98 @@ def tool_deal_analysis():
     st.caption("⚠️ כל החישובים אינדיקטיביים בלבד. יש להתייעץ עם יועץ נדל\"ן ורואה חשבון.")
 
 
+# ─── TOOL: AI CHAT ───────────────────────────────────────────────────────────
+
+SYSTEM_PROMPT = """אתה יועץ נדל"ן מומחה ישראלי בשם "מתן AI".
+אתה מסייע למשקיעים, רוכשים ראשונים, ואנשי מקצוע בתחום הנדל"ן הישראלי.
+אתה מומחה ב:
+- חוקי מיסוי נדל"ן ישראלי (מס רכישה, מס שבח, מס הכנסה משכירות)
+- משכנתאות ומימון נדל"ן בישראל (בנק ישראל, הוראות LTV, פריים)
+- שוק הנדל"ן הישראלי (מחירים, מגמות, אזורים)
+- תמ"א 38, פינוי-בינוי, חיזוק מבנים
+- חוק המכר, חוק השכירות, הסכמי מכר
+- תשואות, ניתוח עסקאות, ROI
+- נדל"ן מסחרי, קרקעות, ייזום
+ענה תמיד בעברית, בצורה מקצועית אך ברורה.
+כשרלוונטי, ציין נתונים מספריים עדכניים (2025-2026).
+אם שאלה חורגת מתחום הנדל"ן, הסבר בנימוס שאתה מתמחה בנדל"ן בלבד."""
+
+
+def tool_ai_chat():
+    st.title("🤖 צ'אט AI — יועץ נדל\"ן")
+    st.caption("שאל כל שאלה בנושא נדל\"ן, מיסוי, משכנתאות ועסקאות — מופעל על Gemini Flash")
+
+    # Initialize Gemini
+    api_key = st.secrets.get("GEMINI_API_KEY", "")
+    if not api_key:
+        api_key = st.text_input("הזן Gemini API Key:", type="password",
+                                help="קבל מפתח חינמי ב-aistudio.google.com")
+        if not api_key:
+            st.info("נדרש Gemini API Key כדי להפעיל את הצ'אט.")
+            return
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",
+        system_instruction=SYSTEM_PROMPT,
+    )
+
+    # Session state for chat history
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    # Display conversation
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    # Welcome message on first load
+    if not st.session_state.chat_history:
+        with st.chat_message("assistant"):
+            st.markdown(
+                "שלום! אני **מתן AI** — יועץ הנדל\"ן החכם שלך 🏠\n\n"
+                "אני יכול לעזור לך בכל שאלה על:\n"
+                "- מס רכישה ומס שבח\n"
+                "- משכנתאות ומימון\n"
+                "- ניתוח עסקאות ותשואות\n"
+                "- חוקי נדל\"ן בישראל\n\n"
+                "**מה תרצה לדעת?**"
+            )
+
+    # Chat input
+    if prompt := st.chat_input("שאל שאלה על נדל\"ן..."):
+        # Add user message
+        st.session_state.chat_history.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # Build history for Gemini
+        gemini_history = []
+        for msg in st.session_state.chat_history[:-1]:
+            role = "user" if msg["role"] == "user" else "model"
+            gemini_history.append({"role": role, "parts": [msg["content"]]})
+
+        # Get response
+        with st.chat_message("assistant"):
+            with st.spinner("חושב..."):
+                try:
+                    chat = model.start_chat(history=gemini_history)
+                    response = chat.send_message(prompt)
+                    answer = response.text
+                except Exception as e:
+                    answer = f"❌ שגיאה: {e}"
+            st.markdown(answer)
+
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+
+    # Clear chat button
+    if st.session_state.chat_history:
+        st.divider()
+        if st.button("🗑️ נקה שיחה", use_container_width=False):
+            st.session_state.chat_history = []
+            st.rerun()
+
+
 # ─── COMING SOON ─────────────────────────────────────────────────────────────
 
 def tool_coming_soon(name: str):
@@ -1203,5 +1296,7 @@ elif selected_tool == "advanced_financing":
     tool_advanced_financing()
 elif selected_tool == "deal_analysis":
     tool_deal_analysis()
+elif selected_tool == "ai_chat":
+    tool_ai_chat()
 else:
     tool_coming_soon(selected_label)
