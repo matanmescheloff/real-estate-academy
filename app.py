@@ -12,28 +12,315 @@ st.set_page_config(page_title="Real Estate Pro | מתן משלוף", layout="wid
 # ─── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    [data-testid="stSidebar"] { background-color: #0f1923; }
-    [data-testid="stSidebar"] * { color: #e8e8e8 !important; }
-    .metric-card {
-        background: linear-gradient(135deg, #1a2a3a, #0f1923);
-        border: 1px solid #2a3f55;
-        border-radius: 12px;
-        padding: 20px;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    .metric-card .label { font-size: 13px; color: #8899aa; margin-bottom: 4px; }
-    .metric-card .value { font-size: 26px; font-weight: 700; color: #4fc3f7; }
-    .metric-card .sub   { font-size: 12px; color: #667788; margin-top: 4px; }
-    .alert-green  { background:#0d3325; border:1px solid #1b5e3b; border-radius:10px; padding:15px; }
-    .alert-yellow { background:#332b00; border:1px solid #5c4a00; border-radius:10px; padding:15px; }
-    .alert-red    { background:#3a0d0d; border:1px solid #7a1a1a; border-radius:10px; padding:15px; }
-    .section-title { font-size:18px; font-weight:700; color:#4fc3f7; margin:20px 0 10px 0; }
-    .coming-soon {
-        text-align:center; padding:80px 20px;
-        color:#556677; font-size:18px;
-    }
-    .stButton>button { border-radius:10px; font-weight:600; }
+/* ════════════════════════════════════════════════════════════
+   GLOBAL
+════════════════════════════════════════════════════════════ */
+.stApp { background-color: #040c19 !important; }
+.main .block-container { padding-top: 1.5rem; }
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════════════════════ */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #040d1e 0%, #071525 50%, #040c19 100%) !important;
+    border-right: 1px solid #0d2040 !important;
+}
+[data-testid="stSidebar"] * { color: #94a3b8 !important; }
+[data-testid="stSidebar"] .stRadio div[role="radio"][aria-checked="true"] ~ span {
+    color: #60a5fa !important; font-weight: 700 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+════════════════════════════════════════════════════════════ */
+h1 {
+    font-size: 2rem !important; font-weight: 800 !important;
+    background: linear-gradient(135deg, #60a5fa 0%, #c084fc 45%, #22d3ee 100%);
+    -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+    background-clip: text !important; padding-bottom: 4px;
+}
+h2 { color: #93c5fd !important; font-weight: 700 !important; }
+h3 { color: #a5f3fc !important; font-weight: 600 !important; }
+p, li { color: #cbd5e1; }
+label { color: #94a3b8 !important; }
+
+/* ════════════════════════════════════════════════════════════
+   METRIC CARDS
+════════════════════════════════════════════════════════════ */
+.metric-card {
+    background: linear-gradient(145deg, #0c1b32 0%, #091422 100%);
+    border: 1px solid #152d4a;
+    border-radius: 18px;
+    padding: 24px 18px 20px;
+    text-align: center;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 48px rgba(59,130,246,0.12), 0 4px 16px rgba(0,0,0,0.6);
+}
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #a78bfa, #22d3ee);
+    border-radius: 18px 18px 0 0;
+}
+.metric-card .label {
+    font-size: 10px; color: #3d5878; margin-bottom: 10px;
+    text-transform: uppercase; letter-spacing: 1.4px; font-weight: 700;
+}
+.metric-card .value {
+    font-size: 26px; font-weight: 800; color: #60a5fa; letter-spacing: -0.5px; line-height: 1.1;
+}
+.metric-card .sub { font-size: 11px; color: #2d4560; margin-top: 7px; font-weight: 500; }
+
+/* ════════════════════════════════════════════════════════════
+   SECTION TITLES
+════════════════════════════════════════════════════════════ */
+.section-title {
+    font-size: 13.5px; font-weight: 700; color: #93c5fd;
+    letter-spacing: 0.5px; margin: 24px 0 14px 0;
+    padding: 10px 16px;
+    background: linear-gradient(90deg, rgba(59,130,246,0.10), rgba(59,130,246,0.02));
+    border-left: 3px solid #3b82f6;
+    border-radius: 0 10px 10px 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ALERTS
+════════════════════════════════════════════════════════════ */
+.alert-green {
+    background: linear-gradient(135deg, rgba(5,46,28,0.85), rgba(6,60,36,0.65));
+    border: 1px solid rgba(16,185,129,0.35); border-left: 4px solid #10b981;
+    border-radius: 14px; padding: 16px 20px; color: #a7f3d0; margin: 10px 0;
+    box-shadow: 0 2px 16px rgba(16,185,129,0.08);
+}
+.alert-yellow {
+    background: linear-gradient(135deg, rgba(45,28,0,0.85), rgba(58,38,0,0.65));
+    border: 1px solid rgba(245,158,11,0.35); border-left: 4px solid #f59e0b;
+    border-radius: 14px; padding: 16px 20px; color: #fde68a; margin: 10px 0;
+    box-shadow: 0 2px 16px rgba(245,158,11,0.08);
+}
+.alert-red {
+    background: linear-gradient(135deg, rgba(45,8,8,0.85), rgba(58,10,10,0.65));
+    border: 1px solid rgba(239,68,68,0.35); border-left: 4px solid #ef4444;
+    border-radius: 14px; padding: 16px 20px; color: #fecaca; margin: 10px 0;
+    box-shadow: 0 2px 16px rgba(239,68,68,0.08);
+}
+
+/* ════════════════════════════════════════════════════════════
+   COMING SOON
+════════════════════════════════════════════════════════════ */
+.coming-soon { text-align: center; padding: 80px 20px; color: #1e3050; font-size: 18px; }
+
+/* ════════════════════════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════════════════════════ */
+.stButton > button {
+    background: linear-gradient(135deg, #1e3fa8, #3b7ef6) !important;
+    color: #fff !important;
+    border: 1px solid rgba(59,130,246,0.25) !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.2px !important;
+    box-shadow: 0 2px 10px rgba(59,130,246,0.2) !important;
+    transition: all 0.2s ease !important;
+}
+.stButton > button:hover {
+    background: linear-gradient(135deg, #2563eb, #60a5fa) !important;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.4) !important;
+    transform: translateY(-1px) !important;
+    border-color: rgba(96,165,250,0.4) !important;
+}
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #5521c7, #3b82f6) !important;
+    border-color: rgba(139,92,246,0.35) !important;
+    box-shadow: 0 2px 10px rgba(109,40,217,0.28) !important;
+}
+.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #6d28d9, #60a5fa) !important;
+    box-shadow: 0 4px 20px rgba(109,40,217,0.45) !important;
+}
+.stButton > button[kind="secondary"] {
+    background: linear-gradient(135deg, #0d1e36, #152d4a) !important;
+    border-color: #1e3a5f !important;
+    color: #93c5fd !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   INPUTS & SELECTS
+════════════════════════════════════════════════════════════ */
+input[type="text"], input[type="number"], input[type="password"], textarea {
+    background: #061018 !important;
+    border: 1px solid #122034 !important;
+    border-radius: 10px !important;
+    color: #e2e8f0 !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+input:focus, textarea:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
+}
+[data-baseweb="select"] > div {
+    background: #061018 !important;
+    border-color: #122034 !important;
+    border-radius: 10px !important;
+    color: #e2e8f0 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TABS
+════════════════════════════════════════════════════════════ */
+.stTabs [data-baseweb="tab-list"] {
+    background: #061018 !important;
+    border-radius: 12px !important;
+    padding: 5px !important;
+    gap: 3px !important;
+    border: 1px solid #0d2038 !important;
+}
+.stTabs [data-baseweb="tab"] {
+    background: transparent !important;
+    border-radius: 8px !important;
+    color: #3d5878 !important;
+    font-weight: 600 !important;
+    transition: all 0.18s !important;
+    padding: 8px 18px !important;
+}
+.stTabs [data-baseweb="tab"]:hover {
+    background: rgba(59,130,246,0.08) !important;
+    color: #93c5fd !important;
+}
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, #1e3fa8, #3b82f6) !important;
+    color: #fff !important;
+    box-shadow: 0 2px 10px rgba(59,130,246,0.3) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   EXPANDERS
+════════════════════════════════════════════════════════════ */
+.stExpander {
+    background: #071525 !important;
+    border: 1px solid #0d2038 !important;
+    border-radius: 14px !important;
+    margin-bottom: 8px !important;
+    overflow: hidden !important;
+    transition: border-color 0.2s !important;
+}
+.stExpander:hover { border-color: #1e3a5f !important; }
+
+/* ════════════════════════════════════════════════════════════
+   PROGRESS BARS
+════════════════════════════════════════════════════════════ */
+.stProgress > div > div {
+    background: #0a1628 !important;
+    border-radius: 8px !important;
+    height: 9px !important;
+    overflow: hidden !important;
+}
+.stProgress > div > div > div > div {
+    background: linear-gradient(90deg, #3b82f6, #a78bfa, #22d3ee) !important;
+    border-radius: 8px !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   NATIVE ST.METRIC
+════════════════════════════════════════════════════════════ */
+[data-testid="metric-container"] {
+    background: linear-gradient(145deg, #0b1a30, #091422) !important;
+    border: 1px solid #152d4a !important;
+    border-radius: 14px !important;
+    padding: 14px 18px !important;
+}
+[data-testid="stMetricValue"] { color: #60a5fa !important; font-weight: 800 !important; }
+[data-testid="stMetricLabel"] { color: #3d5878 !important; }
+[data-testid="stMetricDelta"] svg { fill: #34d399 !important; }
+
+/* ════════════════════════════════════════════════════════════
+   DATAFRAME
+════════════════════════════════════════════════════════════ */
+[data-testid="stDataFrame"] {
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    border: 1px solid #152d4a !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   CHAT
+════════════════════════════════════════════════════════════ */
+[data-testid="stChatMessage"] {
+    background: #071525 !important;
+    border: 1px solid #0d2038 !important;
+    border-radius: 14px !important;
+    margin: 4px 0 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   FORMS
+════════════════════════════════════════════════════════════ */
+[data-testid="stForm"] {
+    background: rgba(6,16,32,0.6) !important;
+    border: 1px solid #0d2038 !important;
+    border-radius: 16px !important;
+    padding: 18px !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DIVIDERS & MISC
+════════════════════════════════════════════════════════════ */
+hr { border-color: #0d2038 !important; margin: 18px 0 !important; }
+.stCaption, [data-testid="caption"] { color: #2d4560 !important; }
+.stCheckbox label, .stRadio label { color: #94a3b8 !important; }
+.stToggle label { color: #94a3b8 !important; }
+[data-testid="stAlert"] { border-radius: 12px !important; }
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR BRAND CARD
+════════════════════════════════════════════════════════════ */
+.sidebar-brand {
+    text-align: center;
+    padding: 20px 12px 24px;
+    border-bottom: 1px solid #0d2038;
+    margin-bottom: 8px;
+}
+.sidebar-brand .icon { font-size: 40px; line-height: 1; margin-bottom: 10px; }
+.sidebar-brand .title {
+    font-size: 17px; font-weight: 800;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.sidebar-brand .sub { font-size: 11px; color: #2d4560 !important; margin-top: 4px; }
+
+/* ════════════════════════════════════════════════════════════
+   NAV SECTION HEADERS IN SIDEBAR
+════════════════════════════════════════════════════════════ */
+.nav-section {
+    font-size: 9px; font-weight: 700; letter-spacing: 1.8px;
+    color: #1e3a5f !important;
+    text-transform: uppercase;
+    padding: 14px 12px 4px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   STAT BADGE CHIPS
+════════════════════════════════════════════════════════════ */
+.chip {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 20px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.4px;
+}
+.chip-blue  { background: rgba(59,130,246,0.15); color: #60a5fa;  border: 1px solid rgba(59,130,246,0.25); }
+.chip-green { background: rgba(52,211,153,0.15); color: #34d399;  border: 1px solid rgba(52,211,153,0.25); }
+.chip-purple{ background: rgba(167,139,250,0.15);color: #a78bfa;  border: 1px solid rgba(167,139,250,0.25);}
+.chip-amber { background: rgba(251,191,36,0.15); color: #fbbf24;  border: 1px solid rgba(251,191,36,0.25); }
+.chip-cyan  { background: rgba(34,211,238,0.15); color: #22d3ee;  border: 1px solid rgba(34,211,238,0.25); }
+.chip-red   { background: rgba(239,68,68,0.15);  color: #f87171;  border: 1px solid rgba(239,68,68,0.25);  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -55,11 +342,22 @@ TOOLS = {
 }
 
 with st.sidebar:
-    st.markdown("## 🏠 Real Estate Pro")
-    st.markdown("*פלטפורמת הנדל\"ן של מתן משלוף*")
-    st.divider()
+    st.markdown("""
+    <div class="sidebar-brand">
+        <div class="icon">🏠</div>
+        <div class="title">Real Estate Pro</div>
+        <div class="sub">מתן משלוף · פלטפורמת נדל"ן</div>
+    </div>
+    <div class="nav-section">כלי חישוב</div>
+    """, unsafe_allow_html=True)
     selected_label = st.radio("בחר כלי:", list(TOOLS.keys()), label_visibility="collapsed")
     selected_tool = TOOLS[selected_label]
+    st.markdown("""
+    <div style="position:absolute;bottom:16px;left:0;right:0;text-align:center;
+                font-size:10px;color:#1a2d45;padding:0 12px;">
+        © 2026 Real Estate Pro · v2.0
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ─── HELPER FUNCTIONS ─────────────────────────────────────────────────────────
@@ -327,7 +625,7 @@ TRACK_TYPES = [
     "פריים",
     "משתנה כל 5 שנים",
 ]
-TRACK_COLORS = ["#4fc3f7", "#81c784", "#ffb74d"]
+TRACK_COLORS = ["#60a5fa", "#34d399", "#fbbf24"]
 TRACK_NAMES  = ["מסלול א׳", "מסלול ב׳", "מסלול ג׳"]
 
 
@@ -405,13 +703,13 @@ def combine_schedules(schedules: list) -> list:
 
 def _plotly_dark_layout(title: str) -> dict:
     return dict(
-        title=title,
-        paper_bgcolor="#0f1923", plot_bgcolor="#0f1923",
-        font=dict(color="#e8e8e8"),
-        xaxis=dict(gridcolor="#1a2a3a", title="חודש"),
-        yaxis=dict(gridcolor="#1a2a3a", title="₪"),
-        legend=dict(bgcolor="#1a2a3a"),
-        margin=dict(l=10, r=10, t=40, b=10),
+        title=dict(text=title, font=dict(color="#93c5fd", size=15, family="Arial")),
+        paper_bgcolor="#040c19", plot_bgcolor="#061018",
+        font=dict(color="#94a3b8", family="Arial"),
+        xaxis=dict(gridcolor="#0d2038", title="חודש", color="#4a6080", linecolor="#0d2038"),
+        yaxis=dict(gridcolor="#0d2038", title="₪", color="#4a6080", linecolor="#0d2038"),
+        legend=dict(bgcolor="#071525", bordercolor="#152d4a", borderwidth=1),
+        margin=dict(l=10, r=10, t=44, b=10),
     )
 
 
@@ -618,8 +916,8 @@ def tool_advanced_financing():
         fig1 = go.Figure()
         fig1.add_trace(go.Scatter(
             x=months, y=balances, mode="lines", name="יתרת חוב",
-            fill="tozeroy", fillcolor="rgba(79,195,247,0.15)",
-            line=dict(color="#4fc3f7", width=2),
+            fill="tozeroy", fillcolor="rgba(96,165,250,0.15)",
+            line=dict(color="#60a5fa", width=2),
         ))
         if num_tracks > 1:
             for tc, sched in zip(track_configs, schedules):
@@ -637,13 +935,13 @@ def tool_advanced_financing():
         fig2 = go.Figure()
         fig2.add_trace(go.Scatter(
             x=months, y=interests, mode="lines", name="ריבית",
-            fill="tozeroy", fillcolor="rgba(229,115,115,0.35)",
-            line=dict(color="#e57373", width=2),
+            fill="tozeroy", fillcolor="rgba(248,113,113,0.25)",
+            line=dict(color="#f87171", width=2),
         ))
         fig2.add_trace(go.Scatter(
             x=months, y=principals, mode="lines", name="קרן",
-            fill="tozeroy", fillcolor="rgba(129,199,132,0.35)",
-            line=dict(color="#81c784", width=2),
+            fill="tozeroy", fillcolor="rgba(52,211,153,0.25)",
+            line=dict(color="#34d399", width=2),
         ))
         fig2.update_layout(**_plotly_dark_layout("פירוט תשלום חודשי — קרן מול ריבית"))
         st.plotly_chart(fig2, use_container_width=True)
@@ -869,7 +1167,7 @@ def tool_deal_analysis():
     st.divider()
     st.markdown("## 📊 תוצאות הניתוח")
 
-    score_color = "#4fc3f7" if score >= 70 else "#ffb74d" if score >= 50 else "#e57373"
+    score_color = "#60a5fa" if score >= 70 else "#fbbf24" if score >= 50 else "#f87171"
     score_label = "🟢 עסקה טובה" if score >= 70 else "🟡 עסקה סבירה" if score >= 50 else "🔴 עסקה חלשה"
 
     col_score, col_kpis = st.columns([1, 3])
@@ -951,7 +1249,7 @@ def tool_deal_analysis():
             cum_cf.append(running)
 
         fig_cf = go.Figure()
-        colors_cf = ["#81c784" if v >= 0 else "#e57373" for v in cum_cf]
+        colors_cf = ["#34d399" if v >= 0 else "#f87171" for v in cum_cf]
         fig_cf.add_trace(go.Bar(x=yrs, y=cum_cf, name="תזרים מצטבר",
                                 marker_color=colors_cf))
         fig_cf.update_layout(**_plotly_dark_layout("תזרים מצטבר — 10 שנים"))
@@ -1094,18 +1392,18 @@ def tool_deal_analysis():
         fig_exit = go.Figure()
         fig_exit.add_trace(go.Scatter(
             x=yrs_30, y=vals_30, name="ערך הנכס",
-            fill="tozeroy", fillcolor="rgba(79,195,247,0.1)",
-            line=dict(color="#4fc3f7", width=2)))
+            fill="tozeroy", fillcolor="rgba(96,165,250,0.12)",
+            line=dict(color="#60a5fa", width=2)))
         fig_exit.add_trace(go.Scatter(
             x=yrs_30, y=mort_30, name="יתרת משכנתא",
-            fill="tozeroy", fillcolor="rgba(229,115,115,0.1)",
-            line=dict(color="#e57373", width=2)))
+            fill="tozeroy", fillcolor="rgba(248,113,113,0.12)",
+            line=dict(color="#f87171", width=2)))
         fig_exit.add_trace(go.Scatter(
             x=yrs_30, y=equity_30, name="הון עצמי בנכס",
-            line=dict(color="#81c784", width=2, dash="dash")))
-        fig_exit.add_vline(x=exit_year, line_dash="dot", line_color="#ffb74d",
+            line=dict(color="#34d399", width=2, dash="dash")))
+        fig_exit.add_vline(x=exit_year, line_dash="dot", line_color="#fbbf24",
                            annotation_text=f"יציאה שנה {exit_year}",
-                           annotation_font_color="#ffb74d")
+                           annotation_font_color="#fbbf24")
         fig_exit.update_layout(**_plotly_dark_layout("ערך הנכס מול יתרת משכנתא (30 שנים)"))
         fig_exit.update_layout(xaxis_title="שנה")
         st.plotly_chart(fig_exit, use_container_width=True)
@@ -2194,7 +2492,7 @@ def tool_tax_authority():
         ]
         for col, (label, tax_val, note) in zip([c1, c2, c3], routes):
             is_best = abs(tax_val - best) < 1
-            border = "border: 2px solid #4fc3f7;" if is_best else ""
+            border = "border: 2px solid #60a5fa;" if is_best else ""
             badge = " 🏆 מומלץ" if is_best else ""
             with col:
                 st.markdown(f"""<div class="metric-card" style="{border}">
@@ -2932,7 +3230,7 @@ def tool_deal_mgmt():
             if not deals:
                 st.markdown("""<div class="coming-soon">
                     <div style="font-size:50px">📋</div>
-                    <div style="font-size:20px;color:#4fc3f7;margin:10px 0">התחל לנהל עסקאות</div>
+                    <div style="font-size:20px;color:#60a5fa;margin:10px 0">התחל לנהל עסקאות</div>
                     <div>לחץ "עסקה חדשה" כדי להוסיף את הנכס הראשון שלך</div>
                 </div>""", unsafe_allow_html=True)
             else:
@@ -3020,7 +3318,7 @@ def tool_deal_mgmt():
                 for stage in DEAL_STAGES:
                     is_current = stage == deal["stage"]
                     is_past = DEAL_STAGES.index(stage) < stage_idx
-                    header_color = "#4fc3f7" if is_current else "#4caf50" if is_past else "#556677"
+                    header_color = "#60a5fa" if is_current else "#10b981" if is_past else "#3d5878"
                     st.markdown(f"<div style='color:{header_color};font-weight:700;margin:15px 0 5px 0'>{stage}</div>",
                                 unsafe_allow_html=True)
                     items_stage = DEAL_STAGE_CHECKLIST[stage]
@@ -3071,7 +3369,7 @@ def tool_deal_mgmt():
 def tool_coming_soon(name: str):
     st.markdown(f"""<div class="coming-soon">
         <div style="font-size:60px">🚧</div>
-        <div style="font-size:24px; font-weight:700; color:#4fc3f7; margin:15px 0">{name}</div>
+        <div style="font-size:24px; font-weight:700; color:#60a5fa; margin:15px 0">{name}</div>
         <div>הכלי הזה בפיתוח ויתווסף בקרוב</div>
     </div>""", unsafe_allow_html=True)
 
