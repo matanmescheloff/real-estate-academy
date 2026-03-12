@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import math
+import json
+from datetime import date
 
 st.set_page_config(page_title="Real Estate Pro | מתן משלוף", layout="wide", page_icon="🏠")
 
@@ -38,7 +40,7 @@ st.markdown("""
 TOOLS = {
     "🏦 מחשבון יכולת רכישה": "calc_power",
     "🔧 מימון מתוחכם": "advanced_financing",
-    "📊 ניתוח עסקה": "coming",
+    "📊 ניתוח עסקה": "deal_analysis",
     "⚖️ חוקים ומיסים": "coming",
     "🎓 מערכת למידה": "coming",
     "🤖 צ'אט AI": "coming",
@@ -730,6 +732,459 @@ def tool_advanced_financing():
     st.caption("⚠️ כל החישובים אינדיקטיביים בלבד. יש להתייעץ עם יועץ משכנתאות מוסמך.")
 
 
+# ─── TOOL: DEAL ANALYSIS ─────────────────────────────────────────────────────
+
+def _score_deal(gross_yield, net_yield, cash_on_cash, monthly_cashflow, ltv_pct):
+    """Return (total_score 0-100, breakdown list)."""
+    score = 0
+    breakdown = []
+
+    def _pts(value, thresholds, label, display):
+        # thresholds: [(min_val, points), ...] descending
+        p = 0
+        for threshold, pts in thresholds:
+            if value >= threshold:
+                p = pts
+                break
+        return p, (label, p, 20, display)
+
+    rules = [
+        ("תשואה ברוטו",     gross_yield,       [(7, 20), (5, 15), (4, 8), (0, 0)],  f"{gross_yield:.1f}%"),
+        ("תשואה נטו",       net_yield,         [(5, 20), (3.5, 15), (2.5, 8), (0, 0)], f"{net_yield:.1f}%"),
+        ("תשואה על ההון",   cash_on_cash,      [(8, 20), (5, 15), (3, 8), (0, 0)],  f"{cash_on_cash:.1f}%"),
+        ("תזרים חודשי",     monthly_cashflow,  [(2000, 20), (500, 15), (0, 8), (-9999, 0)], fmt(monthly_cashflow)),
+        ("מינוף (LTV)",     100 - ltv_pct,     [(50, 20), (35, 15), (25, 8), (0, 0)], f"LTV {ltv_pct:.0f}%"),
+    ]
+    for label, value, thresholds, display in rules:
+        p, row = _pts(value, thresholds, label, display)
+        score += p
+        breakdown.append(row)
+
+    return score, breakdown
+
+
+def tool_deal_analysis():
+    st.title("📊 ניתוח עסקה")
+    st.caption("ניתוח מקצועי — תשואות, תזרים, תרחישים, מחשבון יציאה ושמירת עסקאות")
+
+    if "saved_deals" not in st.session_state:
+        st.session_state["saved_deals"] = []
+
+    # ── 1. PROPERTY DETAILS ───────────────────────────────────────────────────
+    st.markdown('<div class="section-title">📍 פרטי הנכס</div>', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        deal_name = st.text_input("שם העסקה", value="דירה חדשה")
+        prop_type = st.selectbox("סוג נכס", ["דירה להשקעה", "דירה ראשונה", "נכס מסחרי", "קרקע", "אחר"])
+    with c2:
+        price     = st.number_input("מחיר רכישה (₪)", min_value=100_000, max_value=50_000_000,
+                                    step=50_000, value=2_000_000)
+        size_sqm  = st.number_input("גודל (מ\"ר)", min_value=10, max_value=1_000, step=5, value=80)
+    with c3:
+        is_first      = st.selectbox("סוג רכישה", ["דירה ראשונה", "דירה נוספת / משקיע"]) == "דירה ראשונה"
+        has_broker_in = st.checkbox("תיווך ברכישה (2%)?", value=False)
+    st.caption(f"מחיר למ\"ר: {fmt(price / size_sqm if size_sqm else 0)}")
+
+    # ── 2. ENTRY COSTS ────────────────────────────────────────────────────────
+    st.divider()
+    st.markdown('<div class="section-title">💸 עלויות כניסה</div>', unsafe_allow_html=True)
+    purchase_tax = calc_purchase_tax(price, is_first)
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.metric("מס רכישה (אוטומטי)", fmt(purchase_tax))
+    with c2:
+        lawyer_fee  = st.number_input("שכ\"ט עו\"ד (₪)", min_value=0, step=1_000,
+                                      value=int(price * 0.005))
+    with c3:
+        broker_fee  = st.number_input("תיווך (₪)", min_value=0, step=1_000,
+                                      value=int(price * 0.02) if has_broker_in else 0)
+    with c4:
+        renovation  = st.number_input("שיפוץ (₪)", min_value=0, step=5_000, value=0)
+
+    total_entry = purchase_tax + lawyer_fee + broker_fee + renovation
+    st.markdown(f"**סה\"כ עלויות כניסה: {fmt(total_entry)}**")
+
+    # ── 3. FINANCING ──────────────────────────────────────────────────────────
+    st.divider()
+    st.markdown('<div class="section-title">🏦 מימון</div>', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        mortgage       = st.number_input("סכום משכנתא (₪)", min_value=0, max_value=int(price),
+                                         step=50_000, value=int(price * 0.60))
+    with c2:
+        mortgage_rate  = st.slider("ריבית (%)", 0.0, 12.0, 5.5, 0.1)
+    with c3:
+        mortgage_years = st.slider("תקופה (שנים)", 5, 30, 25)
+
+    equity           = price + total_entry - mortgage
+    monthly_mortgage = calc_mortgage_payment(mortgage, mortgage_rate, mortgage_years) if mortgage > 0 else 0.0
+    ltv_pct          = mortgage / price * 100 if price > 0 else 0.0
+
+    c1, c2, c3 = st.columns(3)
+    with c1: st.metric("הון עצמי נדרש",  fmt(equity))
+    with c2: st.metric("החזר חודשי",     fmt(monthly_mortgage))
+    with c3: st.metric("LTV",            f"{ltv_pct:.0f}%")
+
+    # ── 4. INCOME ─────────────────────────────────────────────────────────────
+    st.divider()
+    st.markdown('<div class="section-title">💰 הכנסות</div>', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        monthly_rent      = st.number_input("שכ\"ד חודשי (₪)", min_value=0, step=200, value=6_500)
+    with c2:
+        occupancy_pct     = st.slider("תפוסה (%)", 50, 100, 95)
+    with c3:
+        appreciation_pct  = st.slider("עליית ערך שנתית (%)", 0.0, 10.0, 3.0, 0.5)
+
+    effective_rent = monthly_rent * occupancy_pct / 100
+    annual_rent    = effective_rent * 12
+
+    # ── 5. RUNNING EXPENSES ───────────────────────────────────────────────────
+    st.divider()
+    st.markdown('<div class="section-title">🔧 הוצאות שוטפות (חודשי)</div>', unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+    with c1: hoa_fee          = st.number_input("ועד בית (₪)",    min_value=0, step=50,  value=300)
+    with c2: prop_tax_monthly = st.number_input("ארנונה (₪)",     min_value=0, step=100, value=0)
+    with c3: insurance        = st.number_input("ביטוח (₪)",      min_value=0, step=50,  value=150)
+    with c4: mgmt_pct         = st.slider("ניהול (% שכ\"ד)", 0.0, 10.0, 0.0, 0.5)
+
+    mgmt_fee               = monthly_rent * mgmt_pct / 100
+    total_monthly_expenses = hoa_fee + prop_tax_monthly + insurance + mgmt_fee
+    annual_expenses        = total_monthly_expenses * 12
+
+    # ── CORE CALCULATIONS ─────────────────────────────────────────────────────
+    monthly_cashflow = effective_rent - monthly_mortgage - total_monthly_expenses
+    annual_cashflow  = monthly_cashflow * 12
+    annual_net_income = annual_rent - annual_expenses
+    gross_yield      = annual_rent / price * 100 if price > 0 else 0.0
+    net_yield        = annual_net_income / price * 100 if price > 0 else 0.0
+    cash_on_cash     = annual_cashflow / equity * 100 if equity > 0 else 0.0
+
+    score, score_breakdown = _score_deal(gross_yield, net_yield, cash_on_cash,
+                                         monthly_cashflow, ltv_pct)
+
+    # ── RESULTS HEADER ────────────────────────────────────────────────────────
+    st.divider()
+    st.markdown("## 📊 תוצאות הניתוח")
+
+    score_color = "#4fc3f7" if score >= 70 else "#ffb74d" if score >= 50 else "#e57373"
+    score_label = "🟢 עסקה טובה" if score >= 70 else "🟡 עסקה סבירה" if score >= 50 else "🔴 עסקה חלשה"
+
+    col_score, col_kpis = st.columns([1, 3])
+    with col_score:
+        st.markdown(f"""<div class="metric-card" style="border-color:{score_color}">
+            <div class="label">ציון עסקה</div>
+            <div class="value" style="color:{score_color};font-size:52px">{score}</div>
+            <div class="sub">{score_label}</div>
+        </div>""", unsafe_allow_html=True)
+        st.progress(score / 100)
+
+    with col_kpis:
+        kpi_cards = [
+            ("תשואה ברוטו",     f"{gross_yield:.2f}%",     f"{fmt(annual_rent)} שנתי"),
+            ("תשואה נטו",       f"{net_yield:.2f}%",       f"{fmt(annual_net_income)} נטו"),
+            ("תשואה על ההון",   f"{cash_on_cash:.2f}%",    "Cash-on-Cash"),
+            ("תזרים חודשי",     fmt(monthly_cashflow),
+             "🟢 חיובי" if monthly_cashflow >= 0 else "🔴 שלילי"),
+        ]
+        r1, r2, r3, r4 = st.columns(4)
+        for col, (label, value, sub) in zip([r1, r2, r3, r4], kpi_cards):
+            with col:
+                st.markdown(f"""<div class="metric-card">
+                    <div class="label">{label}</div>
+                    <div class="value" style="font-size:22px">{value}</div>
+                    <div class="sub">{sub}</div>
+                </div>""", unsafe_allow_html=True)
+
+    with st.expander("🔍 פירוט ציון העסקה"):
+        for label, pts, max_pts, val in score_breakdown:
+            ca, cb, cc = st.columns([3, 1, 2])
+            ca.markdown(f"**{label}** — {val}")
+            cb.markdown(f"**{pts}/{max_pts}**")
+            cc.progress(pts / max_pts if max_pts > 0 else 0)
+
+    # ── DETAIL TABS ───────────────────────────────────────────────────────────
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["📋 פירוט פיננסי", "🎭 תרחישים", "🚪 מחשבון יציאה", "💾 שמור ושתף"])
+
+    # ── TAB 1: FINANCIAL BREAKDOWN ────────────────────────────────────────────
+    with tab1:
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown('<div class="section-title">עלויות כניסה</div>', unsafe_allow_html=True)
+            entry_rows = {
+                "מחיר רכישה":           fmt(price),
+                "מס רכישה":             fmt(purchase_tax),
+                "שכ\"ט עו\"ד":          fmt(lawyer_fee),
+                "תיווך":                fmt(broker_fee),
+                "שיפוץ":                fmt(renovation),
+                "**סה\"כ השקעה**":      fmt(price + total_entry),
+            }
+            for k, v in entry_rows.items():
+                ca, cb = st.columns([3, 1]); ca.markdown(k); cb.markdown(f"**{v}**")
+
+        with c2:
+            st.markdown('<div class="section-title">תזרים חודשי</div>', unsafe_allow_html=True)
+            cf_rows = {
+                f"שכ\"ד ({occupancy_pct}% תפוסה)": fmt(effective_rent),
+                "פחות: משכנתא":          f"- {fmt(monthly_mortgage)}",
+                "פחות: ועד בית":         f"- {fmt(hoa_fee)}",
+                "פחות: ביטוח":           f"- {fmt(insurance)}",
+                "פחות: ארנונה":          f"- {fmt(prop_tax_monthly)}",
+                "פחות: ניהול":           f"- {fmt(mgmt_fee)}",
+                f"**תזרים נטו**":        f"**{fmt(monthly_cashflow)}**",
+            }
+            for k, v in cf_rows.items():
+                ca, cb = st.columns([3, 1]); ca.markdown(k); cb.markdown(v)
+
+        # 10-year cashflow chart
+        st.divider()
+        yrs = list(range(1, 11))
+        cum_cf = []
+        running = 0.0
+        for y in yrs:
+            yr_rent     = monthly_rent * (occupancy_pct / 100) * 12 * (1.02 ** (y - 1))
+            yr_expenses = annual_expenses * (1.02 ** (y - 1))
+            running    += yr_rent - yr_expenses - monthly_mortgage * 12
+            cum_cf.append(running)
+
+        fig_cf = go.Figure()
+        colors_cf = ["#81c784" if v >= 0 else "#e57373" for v in cum_cf]
+        fig_cf.add_trace(go.Bar(x=yrs, y=cum_cf, name="תזרים מצטבר",
+                                marker_color=colors_cf))
+        fig_cf.update_layout(**_plotly_dark_layout("תזרים מצטבר — 10 שנים"))
+        fig_cf.update_layout(xaxis_title="שנה")
+        st.plotly_chart(fig_cf, use_container_width=True)
+
+    # ── TAB 2: SCENARIOS ──────────────────────────────────────────────────────
+    with tab2:
+        st.markdown('<div class="section-title">השוואת תרחישים</div>', unsafe_allow_html=True)
+
+        scenarios = {
+            "🔴 פסימי":  {"rent_m": 0.85, "occ": 85,          "rate_d": +1.0, "appr_d": -2.0},
+            "🟡 בסיסי":  {"rent_m": 1.00, "occ": occupancy_pct,"rate_d":  0.0, "appr_d":  0.0},
+            "🟢 אופטימי":{"rent_m": 1.15, "occ": 97,           "rate_d": -0.5, "appr_d": +2.0},
+        }
+
+        sc_rows = []
+        for sc_name, s in scenarios.items():
+            s_rent     = monthly_rent * s["rent_m"] * s["occ"] / 100
+            s_rate     = max(1.0, mortgage_rate + s["rate_d"])
+            s_mm       = calc_mortgage_payment(mortgage, s_rate, mortgage_years) if mortgage > 0 else 0.0
+            s_cf       = s_rent - s_mm - total_monthly_expenses
+            s_gross    = s_rent * 12 / price * 100 if price > 0 else 0
+            s_net      = (s_rent * 12 - annual_expenses) / price * 100 if price > 0 else 0
+            s_coc      = s_cf * 12 / equity * 100 if equity > 0 else 0
+            s_score, _ = _score_deal(s_gross, s_net, s_coc, s_cf, ltv_pct)
+            sc_rows.append({
+                "תרחיש":         sc_name,
+                "שכ\"ד חודשי":  fmt(s_rent),
+                "ריבית":         f"{s_rate:.1f}%",
+                "תזרים חודשי":  fmt(s_cf),
+                "תשואה ברוטו":  f"{s_gross:.1f}%",
+                "תשואה נטו":    f"{s_net:.1f}%",
+                "Cash-on-Cash":  f"{s_coc:.1f}%",
+                "ציון":          s_score,
+            })
+        st.dataframe(pd.DataFrame(sc_rows), use_container_width=True, hide_index=True)
+
+        # Sensitivity table: rent rows × interest rate columns
+        st.divider()
+        st.markdown('<div class="section-title">טבלת רגישות — תזרים חודשי (שכ"ד מול ריבית)</div>',
+                    unsafe_allow_html=True)
+        rent_mults  = [0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.30]
+        rate_deltas = [-1.0, -0.5, 0.0, +0.5, +1.0, +1.5, +2.0]
+        sens_rows = []
+        for rm in rent_mults:
+            r_val = monthly_rent * rm * occupancy_pct / 100
+            row   = {f"שכ\"ד: {fmt(r_val)}": ""}
+            for rd in rate_deltas:
+                rt   = max(0.5, mortgage_rate + rd)
+                s_mm = calc_mortgage_payment(mortgage, rt, mortgage_years) if mortgage > 0 else 0.0
+                s_cf = r_val - s_mm - total_monthly_expenses
+                row[f"ריבית {rt:.1f}%"] = fmt(s_cf)
+            sens_rows.append(row)
+        df_sens = pd.DataFrame(sens_rows)
+        df_sens = df_sens.rename(columns={df_sens.columns[0]: "שכ\"ד \\ ריבית"})
+        # drop the empty first value column then rename properly
+        first_col = df_sens.columns[0]
+        df_sens[first_col] = [f"שכ\"ד {fmt(monthly_rent * rm * occupancy_pct / 100)}" for rm in rent_mults]
+        st.dataframe(df_sens, use_container_width=True, hide_index=True)
+
+    # ── TAB 3: EXIT CALCULATOR ────────────────────────────────────────────────
+    with tab3:
+        st.markdown('<div class="section-title">מחשבון יציאה — מכירה בשנה X</div>',
+                    unsafe_allow_html=True)
+        st.caption("חשב כמה תרוויח נטו אם תמכור את הנכס בשנה מסוימת")
+
+        c_a, c_b = st.columns(2)
+        with c_a:
+            exit_year        = st.slider("שנת מכירה", 1, 30, 10)
+            selling_broker   = st.slider("תיווך במכירה (%)", 0.0, 3.0, 2.0, 0.5)
+        with c_b:
+            exempt_shevach   = st.checkbox("פטור ממס שבח?", value=is_first)
+            custom_exit_price = st.number_input(
+                "מחיר מכירה ידני (0 = חשב אוטומטי לפי עליית ערך)",
+                min_value=0, step=50_000, value=0)
+
+        exit_value = (custom_exit_price if custom_exit_price > 0
+                      else price * (1 + appreciation_pct / 100) ** exit_year)
+
+        # Remaining mortgage at exit
+        if mortgage > 0:
+            sched_exit   = build_amortization_schedule(mortgage, mortgage_rate, mortgage_years)
+            exit_idx     = min(exit_year * 12, len(sched_exit)) - 1
+            rem_mortgage = sched_exit[exit_idx]["balance"] if sched_exit else 0.0
+        else:
+            rem_mortgage = 0.0
+
+        cum_cf_exit      = monthly_cashflow * 12 * exit_year
+        gross_profit     = exit_value - price
+        selling_costs    = exit_value * (selling_broker / 100 + 0.005)
+        capital_gains_tax = 0.0 if exempt_shevach else max(0.0, gross_profit * 0.25)
+        net_proceeds     = exit_value - rem_mortgage - capital_gains_tax - selling_costs
+        total_return     = net_proceeds - equity + cum_cf_exit
+        roi_total        = total_return / equity * 100 if equity > 0 else 0.0
+        cagr             = ((max(0.01, net_proceeds + cum_cf_exit) / equity)
+                            ** (1 / exit_year) - 1) * 100 if exit_year > 0 and equity > 0 else 0.0
+
+        c1, c2, c3, c4 = st.columns(4)
+        exit_cards = [
+            ("ערך הנכס בשנה " + str(exit_year), fmt(exit_value),    f"עלייה של {fmt(exit_value - price)}"),
+            ("יתרת משכנתא",                      fmt(rem_mortgage),  "לפירעון"),
+            ("תזרים מצטבר",                      fmt(cum_cf_exit),   f"{exit_year} שנות שכירות"),
+            ("רווח נטו כולל",                    fmt(total_return),
+             f"ROI {roi_total:.0f}% | CAGR {cagr:.1f}%"),
+        ]
+        for col, (label, value, sub) in zip([c1, c2, c3, c4], exit_cards):
+            with col:
+                st.markdown(f"""<div class="metric-card">
+                    <div class="label">{label}</div>
+                    <div class="value" style="font-size:20px">{value}</div>
+                    <div class="sub">{sub}</div>
+                </div>""", unsafe_allow_html=True)
+
+        with st.expander("📋 פירוט חישוב היציאה"):
+            exit_detail = {
+                "מחיר מכירה":             fmt(exit_value),
+                "פחות: יתרת משכנתא":      f"- {fmt(rem_mortgage)}",
+                "פחות: מס שבח (25%)":      f"- {fmt(capital_gains_tax)}" + (" (פטור)" if exempt_shevach else ""),
+                "פחות: עלויות מכירה":      f"- {fmt(selling_costs)}",
+                "**תמורה נטו**":           fmt(net_proceeds),
+                "פלוס: תזרים מצטבר":      fmt(cum_cf_exit),
+                "פחות: הון עצמי שהושקע":   f"- {fmt(equity)}",
+                "**רווח נטו כולל**":       fmt(total_return),
+                "תשואה כוללת (ROI)":       f"{roi_total:.1f}%",
+                "תשואה שנתית (CAGR)":      f"{cagr:.1f}%",
+            }
+            for k, v in exit_detail.items():
+                ca, cb = st.columns([3, 1]); ca.markdown(k); cb.markdown(f"**{v}**")
+
+        # Exit value vs mortgage balance chart
+        yrs_30  = list(range(1, 31))
+        vals_30 = [price * (1 + appreciation_pct / 100) ** y for y in yrs_30]
+        if mortgage > 0 and sched_exit:
+            mort_30 = [sched_exit[min(y * 12, len(sched_exit)) - 1]["balance"] for y in yrs_30]
+        else:
+            mort_30 = [0.0] * 30
+        equity_30 = [v - m for v, m in zip(vals_30, mort_30)]
+
+        fig_exit = go.Figure()
+        fig_exit.add_trace(go.Scatter(
+            x=yrs_30, y=vals_30, name="ערך הנכס",
+            fill="tozeroy", fillcolor="rgba(79,195,247,0.1)",
+            line=dict(color="#4fc3f7", width=2)))
+        fig_exit.add_trace(go.Scatter(
+            x=yrs_30, y=mort_30, name="יתרת משכנתא",
+            fill="tozeroy", fillcolor="rgba(229,115,115,0.1)",
+            line=dict(color="#e57373", width=2)))
+        fig_exit.add_trace(go.Scatter(
+            x=yrs_30, y=equity_30, name="הון עצמי בנכס",
+            line=dict(color="#81c784", width=2, dash="dash")))
+        fig_exit.add_vline(x=exit_year, line_dash="dot", line_color="#ffb74d",
+                           annotation_text=f"יציאה שנה {exit_year}",
+                           annotation_font_color="#ffb74d")
+        fig_exit.update_layout(**_plotly_dark_layout("ערך הנכס מול יתרת משכנתא (30 שנים)"))
+        fig_exit.update_layout(xaxis_title="שנה")
+        st.plotly_chart(fig_exit, use_container_width=True)
+
+    # ── TAB 4: SAVE & SHARE ───────────────────────────────────────────────────
+    with tab4:
+        st.markdown('<div class="section-title">💾 שמור ושתף</div>', unsafe_allow_html=True)
+
+        deal_snapshot = {
+            "שם עסקה":        deal_name,
+            "סוג נכס":        prop_type,
+            "מחיר רכישה":     price,
+            "הון עצמי":       round(equity),
+            "משכנתא":         mortgage,
+            "החזר חודשי":     round(monthly_mortgage),
+            "שכד חודשי":      monthly_rent,
+            "תזרים חודשי":    round(monthly_cashflow),
+            "תשואה ברוטו":    round(gross_yield, 2),
+            "תשואה נטו":      round(net_yield, 2),
+            "תשואה על הון":   round(cash_on_cash, 2),
+            "ציון":            score,
+            "תאריך":          str(date.today()),
+        }
+
+        c_save, c_json, c_csv = st.columns(3)
+        with c_save:
+            if st.button("💾 שמור לרשימה", type="primary", use_container_width=True):
+                st.session_state["saved_deals"].append(deal_snapshot)
+                st.success(f"✅ '{deal_name}' נשמרה!")
+
+        with c_json:
+            st.download_button(
+                label="📤 ייצא JSON",
+                data=json.dumps(deal_snapshot, ensure_ascii=False, indent=2).encode("utf-8"),
+                file_name=f"עסקה_{deal_name}.json",
+                mime="application/json",
+                use_container_width=True,
+            )
+
+        with c_csv:
+            csv_summary = pd.DataFrame(
+                [{"פרמטר": k, "ערך": str(v)} for k, v in deal_snapshot.items()]
+            ).to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
+            st.download_button(
+                label="📊 ייצא CSV",
+                data=csv_summary,
+                file_name=f"עסקה_{deal_name}.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+
+        # Saved deals list
+        st.divider()
+        n_saved = len(st.session_state["saved_deals"])
+        st.markdown(f'<div class="section-title">עסקאות שמורות ({n_saved})</div>',
+                    unsafe_allow_html=True)
+
+        if st.session_state["saved_deals"]:
+            df_saved = pd.DataFrame(st.session_state["saved_deals"])
+            show_cols = [c for c in
+                ["שם עסקה", "סוג נכס", "מחיר רכישה", "תזרים חודשי",
+                 "תשואה ברוטו", "תשואה נטו", "ציון", "תאריך"]
+                if c in df_saved.columns]
+            st.dataframe(df_saved[show_cols], use_container_width=True, hide_index=True)
+
+            col_dl, col_clear = st.columns(2)
+            with col_dl:
+                all_csv = df_saved.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
+                st.download_button("📥 הורד את כל העסקאות (CSV)", data=all_csv,
+                                   file_name="כל_העסקאות.csv", mime="text/csv",
+                                   use_container_width=True)
+            with col_clear:
+                if st.button("🗑️ נקה רשימה", use_container_width=True):
+                    st.session_state["saved_deals"] = []
+                    st.rerun()
+        else:
+            st.info("אין עסקאות שמורות. לחץ 'שמור לרשימה' לאחר מילוי הטופס.")
+
+    st.caption("⚠️ כל החישובים אינדיקטיביים בלבד. יש להתייעץ עם יועץ נדל\"ן ורואה חשבון.")
+
+
 # ─── COMING SOON ─────────────────────────────────────────────────────────────
 
 def tool_coming_soon(name: str):
@@ -746,5 +1201,7 @@ if selected_tool == "calc_power":
     tool_purchase_power()
 elif selected_tool == "advanced_financing":
     tool_advanced_financing()
+elif selected_tool == "deal_analysis":
+    tool_deal_analysis()
 else:
     tool_coming_soon(selected_label)
